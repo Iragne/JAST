@@ -1,0 +1,9 @@
+div
+  table
+    thead
+      tr: th Posts
+    tbody
+      each app, i in flux
+        tr
+          td 
+            a(href='/admin/post/' + app.id) #{app.name}

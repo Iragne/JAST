@@ -1,0 +1,17 @@
+doctype 5
+html
+  head
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    script(src='/javascripts/jquery-1.4.3.min.js')
+    script(src='/socket.io/socket.io.js')
+
+    link(rel='stylesheet', href='/stylesheets/layout.css')
+    div(id='jai-header')
+         a(href='/')
+          img(src='/images/netcosports-logo.png', alt='')
+    div(id='jai-content')
+         !{body}
+    div(id='jai-footer')
+           div(class='f-left') &copy;  
+              a(href='https://github.com/Iragne/REST-WS-JAI') Adelskott
+           div(class='f-right') Powered by Adelskott
