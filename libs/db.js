@@ -77,7 +77,7 @@ Applications.sync();
 Clients.sync();
 Users.sync();
 
-
+console.log("******************************************************************************");
 
 
 
@@ -90,18 +90,21 @@ try{
         username: 'admin',
         password: crypto.createHash('sha1').update('admin').digest('hex'),
         email: 'contact@gmail.com'
-    }).success(function(e){});
+    });
+    
+    defaultclient.save().success(function(e){}).error(function(){});
     
     var admin = Users.build({
         id: 1,
         username: 'admin',
-        password: crypto.createHash('sha1').update('admin').digest('hex'),
-        email: 'contact@gmail.com'
-    }).success(function(e){});
-    defaultclient.addAdmin(admin).success(function(e){});
-    defaultclient.save().success(function(e){});
+        password: crypto.createHash('sha1').update('password').digest('hex'),
+        email: 'contact@gmail.com',
+        ClientId: 1
+    }).save().success(function(e){}).error(function(){});
+    console.log("******************************************************************************");
 }catch(e){
-    
+console.log(e)
+//    console.log("******************************************************************************");
 }
 
 

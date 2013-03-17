@@ -1,7 +1,7 @@
 var Sequelize = require('Sequelize');
 
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define('Clents', {
+    return sequelize.define('Clients', {
         name: Sequelize.STRING,
         description: Sequelize.TEXT,
         username: Sequelize.STRING,

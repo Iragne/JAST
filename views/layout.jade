@@ -7,11 +7,27 @@ html
 
     link(rel='stylesheet', href='/stylesheets/layout.css')
     div(id='jai-header')
-         a(href='/')
-          img(src='/images/netcosports-logo.png', alt='')
+        a(href='/')
+          img(src='https://www.google.fr/images/srpr/logo4w.png', alt='',width='180',id='logo')
+        - if (locals.session){        
+            div(id='cssmenu')
+                ul
+                    li
+                        a(href='/admin/apps/'+session.client) Applications
+                    li
+                        a(href='/admin/poolers/'+session.client) Poolers
+                    li
+                        a(href='/admin/users/'+session.client) Users
+                    li
+                        a(href='/admin/auth/logout') Logout
+       -} 
     div(id='jai-content')
-         !{body}
+       #content  !{body}
     div(id='jai-footer')
            div(class='f-left') &copy;  
               a(href='https://github.com/Iragne/REST-WS-JAI') Adelskott
            div(class='f-right') Powered by Adelskott
+
+
+
+

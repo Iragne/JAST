@@ -1,5 +1,12 @@
 #login_form(align="center")
- form(action="/admin/auth/login", method="post")
-  input(type="text", placeholder="Email", name="login")
-  input(type="text", placeholder="Password", name="passe")
-  input.action(type="submit", value="Connexion")
+  form(action="/admin/auth/login", method="post")
+    table
+        tr
+            td
+                input(type="text", placeholder="Email", name="login")
+        tr
+            td
+                input(type="password", placeholder="Password", name="password")
+        tr
+            td
+                input.action(type="submit", value="Connexion")

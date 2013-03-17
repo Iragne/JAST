@@ -3,16 +3,18 @@ var util = require('util'),
     redis = require('redis');
 
 
-
+const RedisEmitter_events = new EventEmitter();
 var RedisHooker = module.exports = function() {
 	return this;
 };
 
-
+RedisHooker.prototype.getEmmiter = function (){
+    return RedisEmitter_events;
+}
 RedisHooker.prototype.addUse = function(redis,options) {
 	
 	const subscribe = redis.createClient();
-	const RedisEmitter_events = new EventEmitter();
+	
 	
 	
 	const version = options.version || "1";
@@ -22,12 +24,22 @@ RedisHooker.prototype.addUse = function(redis,options) {
 	subscribe.psubscribe("/"+version+"/"+namespace+":*");
 	subscribe.on("pmessage", function(pattern, channel, message) {
 		//socket.emit('message', { channel: channel, data:  message });
-		console.log("=========================");
-		console.log("===========Message===========");
-		console.log(pattern);
-		console.log(channel);
-		console.log(message);
-		console.log("=========================");
+		//console.log("=========================");
+		//console.log("===========Message===========");
+		//console.log(pattern);
+		//console.log(channel);
+/*		var feeds = null;
+
+		try{
+            feeds = JSON.parse(message);
+        }catch(e){
+            console.log("========================= ERROR RECIVE INFO");
+            console.log(e)
+        }
+*/
+            
+		//console.log(message);
+		//console.log("=========================");
 		
 		RedisEmitter_events.emit(channel,message);
 		

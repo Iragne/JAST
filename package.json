@@ -11,6 +11,8 @@
     "nconf" : "0.6.x",
     "log" : "1.2.x",
     "connect-redis": "1.0.6",
-    "sequelize": "1.x"
+    "sequelize": "1.x",
+    "socket.io-client": "x",
+    "jajsondiff":"git://github.com/Iragne/jajsondiff.git"
   }
 }

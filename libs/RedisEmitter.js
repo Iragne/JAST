@@ -1,32 +1,43 @@
 var util = require('util'),
     //redis = require('redis'),
 //    uuid = require('node-uuid'),
+//    EventEmitter = require('events').EventEmitter,
     RedisHooker = require('./RedisHooker.js');
    
 
 var redish = new RedisHooker();
 var redisinstance = null;
 
+//RedisEmitter_events = new EventEmitter();
+
 module.exports.use = function(redis,options) {
 	redish.use(redis,options);
 	redisinstance = redis.createClient();
 };
 
-var RedisEmitterSub = module.exports.createSubscribe = function() {
-	this._event = RedisEmitter_events;
-	return this;
+function RedisEmitterSub() {
+	this._event = redish.getEmmiter();
+	//return this;
 };
 
 
 
 
 RedisEmitterSub.prototype.addSubscribe = function(channel, callback) {
-	this._event.on(channel,this.callbackListner);
+    var a = this;
+	this._event.on(channel,function(data){
+	    //console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+	    //console.log(data)
+    	a.callback(data)
+	});
+
 	// bind to redis automatic because watching Feeds.*
 };
 RedisEmitterSub.prototype.subscribe = RedisEmitterSub.prototype.addSubscribe;
 
-
+RedisEmitterSub.prototype.callback = function(data){
+    	console.log("Not not implemented")
+}
 
 RedisEmitterSub.prototype.addListener = function(event, callback) {
 	if(typeof callback !== 'function') {
@@ -34,31 +45,37 @@ RedisEmitterSub.prototype.addListener = function(event, callback) {
 	}
 	
 	if(event == "pmessage"){
-		if (typeof this._callback == 'function'){
-			// clean reciver remove ob ...
-		}	
-		this._callback = callback;
+		this.callback = callback;
 	}
 };
 RedisEmitterSub.prototype.on = RedisEmitterSub.prototype.addListener;
 
-RedisEmitterSub.prototype.callbackListner = function (msg){
-	this._callback(msg)
+
+
+module.exports.createSubscribe = function(channel,data){ return new RedisEmitterSub(channel,data)};
+
+
+
+function RedisEmitterPub() {
+	//return this;
 };
+RedisEmitterPub.prototype.addPublish = function(channel, data) {
+//    console.log("******************************************************************");
+//    console.log(channel)
+//    console.log(data)
+    try {
+        //json_data = JSON.stringify(data);
+        redisinstance.publish(channel, data);
+    }catch(e){
+        console.log("NNNNNNNNNNNNN errr")
+        console.log(e)
+    }
 
-
-
-
-
-var RedisEmitterPub = module.exports.createPublish = function() {
-	return this;
+	
 };
-RedisEmitterSub.prototype.addPublish = function(channel, data) {
-	publish.publish(channel, data);
-};
-RedisEmitterSub.prototype.publish = RedisEmitterSub.prototype.addPublish;
+RedisEmitterPub.prototype.publish = RedisEmitterPub.prototype.addPublish;
 
-
+module.exports.createPublish = function(channel,data){ return new RedisEmitterPub(channel,data)};
 
 
 

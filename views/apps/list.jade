@@ -1,9 +1,32 @@
-div
-  table
+.list
+  table(style='width:100%')
     thead
-      tr: th Posts
+      tr
+        th Liste des applicatons
+        th Bundle
+        th Key
+        th Status
+        th
+            div(align='right')
+                a(href='/admin/apps/add') Add
+                
+        
     tbody
       each app, i in flux
         tr
-          td 
-            a(href='/admin/post/' + app.id) #{app.name}
+            td 
+                a(href='/admin/apps/details/' + app.id) #{app.name} 
+            td
+                #{app.bundle}
+            td
+                #{app.secretkey}
+            td
+                #{app.active == 1 ? "Enable" : "Disable"}
+            td
+                span 
+                    a(href='/admin/apps/details/' + app.id) Edit
+                span  
+                    &nbsp;
+                span 
+                    a(href='/admin/apps/channel/'+app.id) Channels
+                
