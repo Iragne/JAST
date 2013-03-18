@@ -84,9 +84,9 @@ ns.on('connection', function(socket) {
         	   }
         	   if (datar){
         	       if (publish == null){
-            	       publish = redis_emmitter.createPublish()
-        	       }
-            	   publish.publish("/"+version+"/Feeds:"+ch, data.message);
+            	       publish = redis_emmitter.createPublish("/"+version+"/Feeds:"+ch,data.message)
+        	       }else
+	            	   publish.publish("/"+version+"/Feeds:"+ch, data.message);
         	   }else{
                     //console.log("No key for the client found: "+client+":"+key);
                     // close all
