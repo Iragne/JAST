@@ -21,6 +21,17 @@ var d = jsondiffpatch.diff({ age: 5, name: 'Arturo' }, {age: 7, name: 'Armando' 
 
 console.log(d)
 
+
+
+var socket = require('socket.io-client').connect('http://localhost:4242/ns');
+socket.on('connect', function () {
+    socket.on('disconnect', function(){});
+    socket.on('message',function (data){
+        
+    });
+    
+});
+
 var socket = require('socket.io-client').connect('http://localhost:4242/ns');
 socket.on('connect', function () {
     socket.on('disconnect', function(){});
