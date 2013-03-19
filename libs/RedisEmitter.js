@@ -56,7 +56,8 @@ module.exports.createSubscribe = function(channel,data){ return new RedisEmitter
 
 
 
-function RedisEmitterPub() {
+function RedisEmitterPub(channel,data) {
+	redisinstance.sadd(channel,data);
 	//return this;
 };
 RedisEmitterPub.prototype.addPublish = function(channel, data) {
@@ -75,7 +76,9 @@ RedisEmitterPub.prototype.addPublish = function(channel, data) {
 };
 RedisEmitterPub.prototype.publish = RedisEmitterPub.prototype.addPublish;
 
-module.exports.createPublish = function(channel,data){ return new RedisEmitterPub(channel,data)};
+module.exports.createPublish = function(channel,data){ 
+	return new RedisEmitterPub(channel,data)
+};
 
 
 
