@@ -11,7 +11,9 @@ var config = require("./conf.js"),
 	express = require('express'),
 	app = express.createServer(),
 	redis = require('redis'),
+	database =  require('./libs/db.js'),
 	RedisStore  = require('connect-redis')(express),
+	poolers = require("./libs/pooler.js"),
 	admin = require('./libs/apps.js');
 
 
@@ -105,6 +107,10 @@ ns.on('connection', function(socket) {
     	var client = datae.client;
     	var app = datae.app;
     	var channel = datae.channel;
+    	
+    	var url = datae.url;
+    	var ttl = datae.ttl;
+    	
     	const version = options.version || "1";
     	const namespace = options.namesapce || "Feeds";
     	var ch = "/"+version+"/"+namespace+":"+client+":"+app+":"+channel;
@@ -113,7 +119,10 @@ ns.on('connection', function(socket) {
 	   //subscribe.subscribe(channel);
 	   var clientAndKey = client+":"+app+":"+key;
 //	   var ch = ar[1];
-	   DB.sismember('AppsKey', clientAndKey, function(err, data) {
+
+        
+    
+        DB.sismember('AppsKey', clientAndKey, function(err, data) {
         	if (data){
         	    if (subscribe == null){
             	    subscribe =redis_emmitter.createSubscribe()
@@ -129,14 +138,22 @@ ns.on('connection', function(socket) {
                 // close all
             }
     	});
-	});
-	
-	
-
+    	
+    	if (url){
+        	// ask for create poolers
+        	channel = crypto.createHash('sha1').update(url).digest('hex');
+        	DB.sismember('Poolers', client+':'+channel, function(err, data) {
+            	if (data){
+            	   publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",({}).toString());
+            	}
+        	});
+    	}
+    	
+    });
 });
 
 
+database.Applications.find({where:{ClientId:1}}).success(function(app){
+    poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});
+});
 
-var poolers = require("./libs/pooler.js");
-
-poolers.run();

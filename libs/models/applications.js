@@ -12,11 +12,11 @@ module.exports = function(sequelize, DataTypes) {
         saveorupdate: function(cb){
             var data = this;
             if (!data.secretkey)
-                data.secretkey = crypto.createHash('sha1').update(data.name+data.description+'dsdqsfsgfsgdfs').digest('hex');
+                data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
                 
             var add = function (){
                 console.log("insert");
-                data.secret = crypto.createHash('sha1').update(data.name+data.description+'dsdqsfsgfsgdfs').digest('hex');
+                data.secret = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
                 data.save().success(function (savedata){
                     cb(savedata.values);
                 });
