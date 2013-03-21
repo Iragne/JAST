@@ -27,7 +27,7 @@ RedisEmitterSub.prototype.addSubscribe = function(channel, callback) {
     var a = this;
     redisinstance.sadd(channel,1);
 	this._event.on(channel,function(data){
-	    //console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+//	    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 	    //console.log(data)
     	a.callback(data)
 	});
@@ -53,7 +53,9 @@ RedisEmitterSub.prototype.on = RedisEmitterSub.prototype.addListener;
 
 
 
-module.exports.createSubscribe = function(channel,data){ return new RedisEmitterSub(channel,data)};
+module.exports.createSubscribe = function(channel,data){ 
+    return new RedisEmitterSub(channel,data)
+};
 
 
 

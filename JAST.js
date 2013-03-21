@@ -20,57 +20,71 @@ var config = require("./conf.js"),
 
 var options = {version:"1",namespace:"Feeds"};
 
+var DB = null;
+var io = null;
+var ns = null;
 
-app.configure(function(){
-    app.set('title', 'JAST API');
-    app.use(express.logger());
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(express.cookieParser());
-    
-    
-    app.use(express.static(__dirname + '/public'));
-    app.set('view engine', 'jade');
-    app.set('views', __dirname + '/views');
-    
-    if(config.basicAuth)
-        app.use(express.basicAuth(config.basicAuth.username, config.basicAuth.password));
-    app.use(express.session({
-        secret: config.sessionSecret || "12345",
-        store:  new RedisStore({
-            'host':   config.redis.host || "127.0.0.1",
-            'port':   config.redis.port || 6379,
-            'pass':   config.redis.password || "",
-            'maxAge': 1209600000
-        })
+var start = function(){
+
+    app.configure(function(){
+        app.set('title', 'JAST API');
+        app.use(express.logger());
+        app.use(express.bodyParser());
+        app.use(express.methodOverride());
+        app.use(express.cookieParser());
         
         
-    }));
-    app.use(app.router);
-
-
-})
-
-app.listen(PORT);
-
-admin.bind(app,options);
-redis_emmitter.use(redis,options);
-
-
-//var publish = redis_emmitter.createPublish();
-
-var DB = redis.createClient();
-var io = require('socket.io').listen(app);
-//io.set('timeout', 0);
-io.configure( function() {
-//    io.set('close timeout', 60*60*24); // 24h time out
-});
-var ns = io.of('/ns');
+        app.use(express.static(__dirname + '/public'));
+        app.set('view engine', 'jade');
+        app.set('views', __dirname + '/views');
+        
+        if(config.basicAuth)
+            app.use(express.basicAuth(config.basicAuth.username, config.basicAuth.password));
+        app.use(express.session({
+            secret: config.sessionSecret || "12345",
+            store:  new RedisStore({
+                'host':   config.redis.host || "127.0.0.1",
+                'port':   config.redis.port || 6379,
+                'pass':   config.redis.password || "",
+                'maxAge': 1209600000
+            })
+            
+            
+        }));
+        app.use(app.router);
+    
+        console.log("fin Config apps")
+    })
+    
+    app.listen(PORT);
+    
+    admin.bind(app,options);
+    redis_emmitter.use(redis,options);
+    
+    
+    DB = redis.createClient();
+    io = require('socket.io').listen(app);
+    //io.set('timeout', 0);
+    io.configure( function() {
+    //    io.set('close timeout', 60*60*24); // 24h time out
+    });
+    ns = io.of('/ns');
+    
+    database.Applications.find({where:{ClientId:1}}).success(function(app){
+        DB.sadd("Channels",1+":"+1+":"+"admin_channel");
+        DB.sadd("AppsKey",1+":"+1+":"+app.secretkey);
+        runsio(app.secretkey,function(){
+            poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});        
+        });
+    });    
+};
 
 
 var runsio = function (t_admin_key,next){
+    console.log("runsio")
     ns.on('connection', function(socket) {
         console.log("connection recived");
+//        console.log(socket)
     	var subscribe = null;
     	var publish = null;
     	socket.on('disconnect',function (){
@@ -78,7 +92,7 @@ var runsio = function (t_admin_key,next){
     	});
     	socket.on('publish', function(data,fct) {
         	console.log("publish")
-        	console.log(data)
+        	//console.log(data)
         	var key = data.key;
         	var client = data.client;
         	var app = data.app;
@@ -96,10 +110,11 @@ var runsio = function (t_admin_key,next){
             	   if (datar){
             	       if (publish == null){
                 	       publish = redis_emmitter.createPublish("/"+version+"/Feeds:"+ch,data.message)
-            	       }else
-    	            	   publish.publish("/"+version+"/Feeds:"+ch, data.message);
+            	       }
+                        publish.publish("/"+version+"/Feeds:"+ch, data.message);
+//                        console.log("=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
             	   }else{
-                        //console.log("No key for the client found: "+client+":"+key);
+                        console.log("No key for the client found: "+client+":"+key);
                         // close all
                     }
                     
@@ -130,15 +145,17 @@ var runsio = function (t_admin_key,next){
     //	   var ch = ar[1];
     
             
-            console.log("--------------------------------------------=====dd");
+//            console.log("--------------------------------------------=====dd");
                 DB.sismember('AppsKey', clientAndKey, function(err, data) {
                 	if (data){
                 	    if (subscribe == null){
+                	        console.log("create sub")
                     	    subscribe =redis_emmitter.createSubscribe()
                 	    }
+                	    console.log(ch)
                     	subscribe.subscribe(ch);
                     	subscribe.on("pmessage", function(pmessage) {
-                        		console.log("--------------------------------------------=====aaa");
+  //                      		console.log("--------------------------------------------=====aaa");
                         		console.log(pmessage);
                         		socket.emit('message', pmessage);
                         	});
@@ -151,12 +168,13 @@ var runsio = function (t_admin_key,next){
             
         	
         	if (url){
+        	    console.log("url found")
             	// ask for create poolers
-            	channel = crypto.createHash('sha1').update(url).digest('hex');
+            	//channel = crypto.createHash('sha1').update(url).digest('hex');
             	DB.sismember('Poolers', client+':'+t_admin_key, function(err, data) {
                 	if (data && false){
                 	   DB.smembers("/"+version+"/Feeds:1:1:admin_channel",function (e){
-                	       console.log("=========dsfsdf")
+//                	       console.log("=========dsfsdf")
                     	   console.log(e) 
                 	   })
                 	   /*
@@ -175,12 +193,13 @@ publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",(
                         ttl: ttl,
                     	clientid: client,
                     	appid:app,
-                    	keysecret:key
+                    	keysecret:key,
+                    	channel:channel
                     	
                 	   };
                 	   
                 	   m = JSON.stringify(m)
-                	   console.log(m)
+                	   //console.log(m)
                 	publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
 
 
@@ -193,11 +212,7 @@ publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",(
 }
 
 
-database.Applications.find({where:{ClientId:1}}).success(function(app){
-    DB.sadd("Channels",1+":"+1+":"+"admin_channel");
-    DB.sadd("AppsKey",1+":"+1+":"+app.secretkey);
-    runsio(app.secretkey,function(){
-        poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});        
-    });
-});
 
+database.run(function(){
+    start();
+})

@@ -50,46 +50,57 @@ socket2.on('connect', function () {
 
 */
 
-
+var socket = null;
 var channel_emmit = function (){
-    var socket = require('socket.io-client').connect('http://localhost:4242/ns');
-    socket.on('connect', function () {
-        socket.on('disconnect', function(){});
-        RedisEmitter_events.on('pooler_message',function(data){
-            console.log('pooler_message')
-            console.log(data)
-            socket.emit('publish', data,function (){
-            
+    
+        if (socket == null)
+            socket = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+        socket.on('error', function(e){
+            console.log("error admin channel")
+            console.log(e)
+        });
+        socket.on('connect', function () {
+            console.log("admin channel connected");
+            socket.on('disconnect', function(){
+                console.log("disconenct admin channel")
+            });
+            RedisEmitter_events.on('pooler_message',function(data){
+                console.log('pooler_message')
+               // console.log(data)
+                socket.emit('publish', data,function (){
+                
+               }); 
             });
         });
-    });
+    
 }
 exports.run = function(conf){
-    
+//    return;    
     channel_emmit();
     var key_admin = conf.key_admin || '4dc31927dc719858c134d09b5941fe6db7ec6606';
     var client_admin = conf.client_admin || 1;
     var app_admin = conf.app_admin || 1;
-    var socket = require('socket.io-client').connect('http://localhost:4242/ns');
-    socket.on('connect', function () {
-        console.log("socket.on('connect', function () {")
-        socket.on('disconnect', function(e){
+
+    var socket_listen = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    socket_listen.on('connect', function () {
+        console.log("Listen connected")
+        socket_listen.on('disconnect', function(e){
             console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
         });
-        socket.on('message',function (datae){
-            console.log("qsfdsdfsdfsqdfsqdfsqdfjisqhdifhisqhdfihsdihfisdhifh")
-            console.log(datae)
+        socket_listen.on('message',function (datae){
             data = null;
             try{
                 data = JSON.parse(datae)
             }catch(e){
                 console.log(e)
             }
+            console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
+//            console.log(datae)
             url = data.url;
             ttl = data.ttl;
-            if (ttl < 4)
-                ttl = 5;
-            channel = crypto.createHash('sha1').update(url).digest('hex');
+            if (ttl < 2)
+                ttl = 3;
+            channel = data.channel;//crypto.createHash('sha1').update(url).digest('hex');
             clientid = data.clientid;
             appid = data.appid;
             keysecret = data.keysecret;
@@ -123,7 +134,7 @@ exports.run = function(conf){
             getRestData();
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
-        socket.emit('psubscribe', data,function (e){
+        socket_listen.emit('psubscribe', data,function (e){
             console.log(e)
         });
     });
@@ -184,24 +195,35 @@ exports.run = function(conf){
 
 
 var ssss = function (){
-    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
-    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns');
+//    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
+    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    socket2.on('error', function(e){
+        console.log("error")
+        console.log(e)
+    });
     socket2.on('connect', function () {
-        console.log("********************************RRRR**************************************");
+//        console.log("********************************RRRR**************************************");
     //    console.log("********************************RRRR**************************************");
         socket2.on('disconnect', function(){
             console.log("********************************dec**************************************");
         });
         socket2.on('message', function(data){
-            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-            console.log(data);
+//            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            //console.log(data);
         });
         key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent",ttl:5};
+        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent",ttl:3};
         console.log(data)
         socket2.emit('psubscribe', data);
     });
 }
-
-//setTimeout(ssss, 3000);
-ssss();
+setTimeout(ssss, 4000);
+/*setTimeout(ssss, 5000);
+setTimeout(ssss, 6000);
+setTimeout(ssss, 7000);
+setTimeout(ssss, 8000);
+setTimeout(ssss, 9000);
+setTimeout(ssss, 10000);
+setTimeout(ssss, 11000);
+//ssss();
+*/
