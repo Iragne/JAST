@@ -12,7 +12,7 @@ RedisHooker.prototype.getEmmiter = function (){
     return RedisEmitter_events;
 }
 RedisHooker.prototype.addUse = function(redis,options) {
-	
+	console.log("===========Message===========2");
 	const subscribe = redis.createClient();
 	
 	
@@ -24,10 +24,10 @@ RedisHooker.prototype.addUse = function(redis,options) {
 	subscribe.psubscribe("/"+version+"/"+namespace+":*");
 	subscribe.on("pmessage", function(pattern, channel, message) {
 		//socket.emit('message', { channel: channel, data:  message });
-		//console.log("=========================");
-		//console.log("===========Message===========");
-		//console.log(pattern);
-		//console.log(channel);
+		console.log("=========================");
+		console.log("===========Message===========");
+		console.log(pattern);
+		console.log(channel);
 /*		var feeds = null;
 
 		try{

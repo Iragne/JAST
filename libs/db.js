@@ -65,7 +65,8 @@ Clients.sync().success(function() {
                     description: 'Admin channel',
                     bundle: '',
                     secretkey: crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex'),
-                    active: 1
+                    active: 1,
+                    ClientId: 1
                 }).save().success(function(e){}).error(function(){});
                 console.log("******************************************************************************");
             }catch(e){

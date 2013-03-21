@@ -25,15 +25,7 @@ jsondiffpatch.config.textDiffMinLength = 5;
 
 
 
-var socket = require('socket.io-client').connect('http://localhost:4242/ns');
-socket.on('connect', function () {
-    socket.on('disconnect', function(){});
-    RedisEmitter_events.on('pooler_message',function(data){
-        socket.emit('publish', data,function (){
-        
-        });
-    });
-});
+
 
 
 
@@ -58,14 +50,41 @@ socket2.on('connect', function () {
 
 */
 
+
+var channel_emmit = function (){
+    var socket = require('socket.io-client').connect('http://localhost:4242/ns');
+    socket.on('connect', function () {
+        socket.on('disconnect', function(){});
+        RedisEmitter_events.on('pooler_message',function(data){
+            console.log('pooler_message')
+            console.log(data)
+            socket.emit('publish', data,function (){
+            
+            });
+        });
+    });
+}
 exports.run = function(conf){
+    
+    channel_emmit();
     var key_admin = conf.key_admin || '4dc31927dc719858c134d09b5941fe6db7ec6606';
     var client_admin = conf.client_admin || 1;
     var app_admin = conf.app_admin || 1;
     var socket = require('socket.io-client').connect('http://localhost:4242/ns');
     socket.on('connect', function () {
-        socket.on('disconnect', function(){});
-        socket.on('message',function (data){
+        console.log("socket.on('connect', function () {")
+        socket.on('disconnect', function(e){
+            console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
+        });
+        socket.on('message',function (datae){
+            console.log("qsfdsdfsdfsqdfsqdfsqdfjisqhdifhisqhdfihsdihfisdhifh")
+            console.log(datae)
+            data = null;
+            try{
+                data = JSON.parse(datae)
+            }catch(e){
+                console.log(e)
+            }
             url = data.url;
             ttl = data.ttl;
             if (ttl < 4)
@@ -77,6 +96,7 @@ exports.run = function(conf){
             var olddata = null;
             var olddata_json = null;
             var getRestData = function (){
+                console.log("getdata")
                 var request = http.get(options, function(res){
                     var body = ''
                     res.setEncoding('binary');
@@ -90,7 +110,7 @@ exports.run = function(conf){
                                                                        message:body,
                                                                        channel:channel});                
                         }
-                        setTimeout(getRestData,1000);
+                        setTimeout(getRestData,ttl*1000);
                     });
                     
                     res.on("error",function (e) {
@@ -103,8 +123,8 @@ exports.run = function(conf){
             getRestData();
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
-        socket.emit('psubscribe', data,function (){
-            
+        socket.emit('psubscribe', data,function (e){
+            console.log(e)
         });
     });
 }
@@ -161,3 +181,27 @@ exports.run = function(conf){
                         
                         
 */
+
+
+var ssss = function (){
+    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
+    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns');
+    socket2.on('connect', function () {
+        console.log("********************************RRRR**************************************");
+    //    console.log("********************************RRRR**************************************");
+        socket2.on('disconnect', function(){
+            console.log("********************************dec**************************************");
+        });
+        socket2.on('message', function(data){
+            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            console.log(data);
+        });
+        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
+        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent",ttl:5};
+        console.log(data)
+        socket2.emit('psubscribe', data);
+    });
+}
+
+//setTimeout(ssss, 3000);
+ssss();

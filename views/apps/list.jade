@@ -2,6 +2,7 @@
   table(style='width:100%')
     thead
       tr
+        th id
         th Liste des applicatons
         th Bundle
         th Key
@@ -14,6 +15,8 @@
     tbody
       each app, i in flux
         tr
+            td 
+                a(href='/admin/apps/details/' + app.id) #{app.id} 
             td 
                 a(href='/admin/apps/details/' + app.id) #{app.name} 
             td
@@ -29,4 +32,8 @@
                     &nbsp;
                 span 
                     a(href='/admin/apps/channel/'+app.id) Channels
+                span  
+                    &nbsp;
+                span 
+                    a(href='/admin/apps/del/'+app.id) del
                 
