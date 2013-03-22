@@ -107,7 +107,7 @@ exports.run = function(conf){
             var olddata = null;
             var olddata_json = null;
             var getRestData = function (){
-                console.log("getdata")
+                console.log("getdata "+url)
                 var request = http.get(options, function(res){
                     var body = ''
                     res.setEncoding('binary');
@@ -198,7 +198,7 @@ var ssss = function (){
 //    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
     var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
     socket2.on('error', function(e){
-        console.log("error")
+        console.log("error test")
         console.log(e)
     });
     socket2.on('connect', function () {
@@ -208,22 +208,39 @@ var ssss = function (){
             console.log("********************************dec**************************************");
         });
         socket2.on('message', function(data){
-//            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
         key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
         var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent",ttl:3};
-        console.log(data)
+        //console.log(data)
         socket2.emit('psubscribe', data);
     });
 }
 setTimeout(ssss, 4000);
-/*setTimeout(ssss, 5000);
+setTimeout(ssss, 5000);
 setTimeout(ssss, 6000);
 setTimeout(ssss, 7000);
 setTimeout(ssss, 8000);
 setTimeout(ssss, 9000);
 setTimeout(ssss, 10000);
 setTimeout(ssss, 11000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 5000);
+setTimeout(ssss, 6000);
+setTimeout(ssss, 7000);
+setTimeout(ssss, 8000);
+setTimeout(ssss, 9000);
+setTimeout(ssss, 10000);
+setTimeout(ssss, 11000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 5000);
+setTimeout(ssss, 6000);
+setTimeout(ssss, 7000);
+setTimeout(ssss, 8000);
+setTimeout(ssss, 9000);
+setTimeout(ssss, 10000);
+setTimeout(ssss, 11000);
+
+
 //ssss();
-*/

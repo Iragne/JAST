@@ -4,6 +4,7 @@ var util = require('util'),
 
 
 const RedisEmitter_events = new EventEmitter();
+RedisEmitter_events.setMaxListeners()
 var RedisHooker = module.exports = function() {
 	return this;
 };

@@ -20,7 +20,7 @@ var config = require("./conf.js"),
 
 var options = {version:"1",namespace:"Feeds"};
 
-var DB = null;
+var DB = redis.createClient();
 var io = null;
 var ns = null;
 
@@ -37,7 +37,7 @@ var start = function(){
         app.use(express.static(__dirname + '/public'));
         app.set('view engine', 'jade');
         app.set('views', __dirname + '/views');
-        
+        app.set('log level', 1);
         if(config.basicAuth)
             app.use(express.basicAuth(config.basicAuth.username, config.basicAuth.password));
         app.use(express.session({
@@ -55,15 +55,16 @@ var start = function(){
     
         console.log("fin Config apps")
     })
-    
+    app.use(express.compress());
     app.listen(PORT);
     
     admin.bind(app,options);
     redis_emmitter.use(redis,options);
     
     
-    DB = redis.createClient();
+    
     io = require('socket.io').listen(app);
+    io.set('log level', 1);
     //io.set('timeout', 0);
     io.configure( function() {
     //    io.set('close timeout', 60*60*24); // 24h time out
@@ -126,7 +127,7 @@ var runsio = function (t_admin_key,next){
     	
     	socket.on('psubscribe', function(datae) {
     	    console.log('psubscribe');
-    	    console.log(datae);
+//x    	    console.log(datae);
     	    var key = datae.key;
         	var client = datae.client;
         	var app = datae.app;
@@ -152,11 +153,11 @@ var runsio = function (t_admin_key,next){
                 	        console.log("create sub")
                     	    subscribe =redis_emmitter.createSubscribe()
                 	    }
-                	    console.log(ch)
+//                	    console.log(ch)
                     	subscribe.subscribe(ch);
                     	subscribe.on("pmessage", function(pmessage) {
   //                      		console.log("--------------------------------------------=====aaa");
-                        		console.log(pmessage);
+//                        		console.log(pmessage);
                         		socket.emit('message', pmessage);
                         	});
                 	}else{
@@ -170,37 +171,37 @@ var runsio = function (t_admin_key,next){
         	if (url){
         	    console.log("url found")
             	// ask for create poolers
-            	//channel = crypto.createHash('sha1').update(url).digest('hex');
-            	DB.sismember('Poolers', client+':'+t_admin_key, function(err, data) {
-                	if (data && false){
-                	   DB.smembers("/"+version+"/Feeds:1:1:admin_channel",function (e){
-//                	       console.log("=========dsfsdf")
-                    	   console.log(e) 
+            	keyurl = crypto.createHash('sha1').update(url).digest('hex');
+            	m = {url: url,
+                            ttl: ttl,
+                        	clientid: client,
+                        	appid:app,
+                        	keysecret:key,
+                        	channel:channel
+                        	
+                           };
+                           
+                m = JSON.stringify(m)
+            	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {
+                	if (data){
+//                	   console.log("/"+version+"/Feeds:"+client+":"+app+":"+channel)
+                	   DB.get("/"+version+"/Feeds:"+client+":"+app+":"+channel,function (err,elt){
+//                	       console.log(elt)
+                	       if (elt){
+                	           console.log("VERSION DU FEEDS")
+                	           socket.emit('message', elt);
+                	       }else{
+                    	       console.log("PAS DE VERSION DU FEEDS")
+                    	       publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
+                	       }
                 	   })
-                	   /*
-publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",({
-                    	   key_admin: t_admin_key,
-                    	   client_admin: 1,
-                    	   app_admin: 1
-                	   }).toString());
-*/
                 	}else{
-                    	DB.sadd('Poolers', client+':'+t_admin_key, function(elt) {
+                    	DB.sadd('Poolers', client+':'+keyurl, function(elt) {
                         	
                     	})
+                        publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
                 	}
-                	m = {url: url,
-                        ttl: ttl,
-                    	clientid: client,
-                    	appid:app,
-                    	keysecret:key,
-                    	channel:channel
-                    	
-                	   };
-                	   
-                	   m = JSON.stringify(m)
-                	   //console.log(m)
-                	publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
+
 
 
             	});
@@ -213,6 +214,6 @@ publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",(
 
 
 
-database.run(function(){
+database.run(DB,function(){
     start();
 })
