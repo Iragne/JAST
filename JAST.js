@@ -15,7 +15,9 @@ var config = require("./conf.js"),
 	RedisStore  = require('connect-redis')(express),
 	poolers = require("./libs/pooler.js"),
 	admin = require('./libs/apps.js'),
-	crypto = require('crypto');
+	crypto = require('crypto'),
+	Mutex = require('mutex'),
+	mutex = new Mutex();
 
 
 var options = {version:"1",namespace:"Feeds"};
@@ -85,7 +87,7 @@ var runsio = function (t_admin_key,next){
     console.log("runsio")
     ns.on('connection', function(socket) {
         console.log("connection recived");
-//        console.log(socket)
+        //console.log(socket)
     	var subscribe = null;
     	var publish = null;
     	socket.on('disconnect',function (){
@@ -127,7 +129,7 @@ var runsio = function (t_admin_key,next){
     	
     	socket.on('psubscribe', function(datae) {
     	    console.log('psubscribe');
-//x    	    console.log(datae);
+    	    console.log(datae);
     	    var key = datae.key;
         	var client = datae.client;
         	var app = datae.app;
@@ -136,6 +138,7 @@ var runsio = function (t_admin_key,next){
         	var url = datae.url;
         	var ttl = datae.ttl;
         	
+        	console.log("Subscribe to c:"+channel+" a:"+app+" cl:"+client);
         	const version = options.version || "1";
         	const namespace = options.namesapce || "Feeds";
         	var ch = "/"+version+"/"+namespace+":"+client+":"+app+":"+channel;
@@ -182,6 +185,37 @@ var runsio = function (t_admin_key,next){
                            };
                            
                 m = JSON.stringify(m)
+                
+                mutex.isolateCondRetry(keyurl, 10000, function check(callback) {
+                	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {
+                    	if (data){
+                    	   DB.get("/"+version+"/Feeds:"+client+":"+app+":"+channel,function (err,elt){
+    //                	       console.log(elt)
+                    	       if (elt){
+                    	           console.log("VERSION DU FEEDS")
+                    	           socket.emit('message', elt);
+                    	       }else{
+                        	       console.log("PAS DE VERSION DU FEEDS")
+                        	       publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
+                    	       }
+                    	       callback(null, 'cached')
+                	       })
+                    	}else{
+                        	callback(null, mutex.continue);
+                    	}
+                	})
+                }, function isolated(callback){
+                
+                    DB.sadd('Poolers', client+':'+keyurl, function(elt) {
+                        callback(null, 'some result');
+                        publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
+                    });
+                    
+                
+                }, function after(err, result) {
+                    console.log(result); 
+                })
+/*
             	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {
                 	if (data){
 //                	   console.log("/"+version+"/Feeds:"+client+":"+app+":"+channel)
@@ -204,7 +238,7 @@ var runsio = function (t_admin_key,next){
 
 
 
-            	});
+            	});*/
         	}
         	
         });

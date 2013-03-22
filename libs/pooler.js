@@ -2,6 +2,7 @@ var http = require("http"),
     diff_match_patch=require('jajsondiff'),
     EventEmitter = require('events').EventEmitter,
     crypto = require('crypto');
+var urlparse = require('url');
 
 //http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent
 var options = {
@@ -9,10 +10,17 @@ var options = {
  path: "/search.json?q=nodejs&rpp=5&include_entities=true&result_type=recent",
 }
 const RedisEmitter_events = new EventEmitter();
+
 const dmp =new diff_match_patch.difftext();
 const jsondiffpatch =  diff_match_patch.diffjson;
 jsondiffpatch.config.textDiffMinLength = 5; 
- 
+
+RedisEmitter_events.setMaxListeners(10000000)
+
+RedisEmitter_events.on("error",function(e){
+    console.log("EvEmit");
+    console.log(e);
+}) 
 //jsondiffpatch.config.diff_match_patch = require('./diff_match_patch_uncompressed.js');
 
 // use text diff for strings longer than 5 chars 
@@ -82,6 +90,9 @@ exports.run = function(conf){
     var app_admin = conf.app_admin || 1;
 
     var socket_listen = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    socket_listen.on('error', function(e){
+            console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
+    });
     socket_listen.on('connect', function () {
         console.log("Listen connected")
         socket_listen.on('disconnect', function(e){
@@ -108,7 +119,7 @@ exports.run = function(conf){
             var olddata_json = null;
             var getRestData = function (){
                 console.log("getdata "+url)
-                var request = http.get(options, function(res){
+                var request = http.get(urlparse.parse(url), function(res){
                     var body = ''
                     res.setEncoding('binary');
                     res.on('data', function(chunk){body += chunk;});
@@ -119,7 +130,7 @@ exports.run = function(conf){
                                                                        key: keysecret,
                                                                        app:appid, 
                                                                        message:body,
-                                                                       channel:channel});                
+                                                                       channel:channel});
                         }
                         setTimeout(getRestData,ttl*1000);
                     });
@@ -211,36 +222,95 @@ var ssss = function (){
             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
-        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent",ttl:3};
+        key_admin = '8df9249e06236bdf5f625edd27c6613be2278fdd'
+        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:3};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
 }
-setTimeout(ssss, 4000);
-setTimeout(ssss, 5000);
-setTimeout(ssss, 6000);
-setTimeout(ssss, 7000);
-setTimeout(ssss, 8000);
-setTimeout(ssss, 9000);
-setTimeout(ssss, 10000);
-setTimeout(ssss, 11000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 5000);
-setTimeout(ssss, 6000);
-setTimeout(ssss, 7000);
-setTimeout(ssss, 8000);
-setTimeout(ssss, 9000);
-setTimeout(ssss, 10000);
-setTimeout(ssss, 11000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 5000);
-setTimeout(ssss, 6000);
-setTimeout(ssss, 7000);
-setTimeout(ssss, 8000);
-setTimeout(ssss, 9000);
-setTimeout(ssss, 10000);
-setTimeout(ssss, 11000);
 
-
-//ssss();
+setTimeout(ssss, 4000);
+/*setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+setTimeout(ssss, 4000);
+*/

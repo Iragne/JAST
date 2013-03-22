@@ -3,11 +3,12 @@
     thead
       tr
         th Liste des channels
-        
+        th actions
     tbody
       each app, i in flux
         tr
             td
                 #{app}
-            
+            td
+                a(href='/admin/apps/channel/listen/'+a.id+"/"+app) Listen
                 
