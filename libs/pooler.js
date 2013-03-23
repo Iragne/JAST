@@ -109,8 +109,8 @@ exports.run = function(conf){
             //console.log(data)
             var url = data.url;
             var ttl = data.ttl;
-            if (ttl < 2)
-                ttl = 3;
+            if (ttl  == 0)
+                ttl = 1;
             var channel = data.channel;//crypto.createHash('sha1').update(url).digest('hex');
             var clientid = data.clientid;
             var appid = data.appid;
@@ -219,11 +219,11 @@ var ssss = function (){
             console.log("********************************dec**************************************");
         });
         socket2.on('message', function(data){
-            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
         key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:3};
+        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:1};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
@@ -244,11 +244,11 @@ var test2 = function (){
             console.log("********************************dec**************************************");
         });
         socket2.on('message', function(data){
-            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
         key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:3};
+        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:1};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
@@ -257,67 +257,6 @@ var test2 = function (){
 setTimeout(ssss, 4000);
 setTimeout(test2, 4000);
 /*setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
 setTimeout(ssss, 4000);
 setTimeout(ssss, 4000);
 setTimeout(ssss, 4000);
