@@ -1,3 +1,5 @@
+
+
 module.exports = function (app,redis_req,database,crypto,DB){
     app.get('/admin/apps/channel/listen/:appid/:chname', function (req, res) {
         var chname = req.params.chname;
