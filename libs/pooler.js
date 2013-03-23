@@ -107,14 +107,14 @@ exports.run = function(conf){
             }
             console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
             //console.log(data)
-            url = data.url;
-            ttl = data.ttl;
+            var url = data.url;
+            var ttl = data.ttl;
             if (ttl < 2)
                 ttl = 3;
-            channel = data.channel;//crypto.createHash('sha1').update(url).digest('hex');
-            clientid = data.clientid;
-            appid = data.appid;
-            keysecret = data.keysecret;
+            var channel = data.channel;//crypto.createHash('sha1').update(url).digest('hex');
+            var clientid = data.clientid;
+            var appid = data.appid;
+            var keysecret = data.keysecret;
             var olddata = null;
             var olddata_json = null;
             var getRestData = function (){
