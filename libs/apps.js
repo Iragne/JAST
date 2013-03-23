@@ -64,6 +64,7 @@ module.exports.bind = function(app,options) {
 			res.render('auth/login', respond);
 		});
 	});
+	
 	app.get('/admin/apps/del/:appid', function (req, res) {
     	var appid = req.params.appid.replace(/\W/g, '');
     	database.Applications.find(appid).success(function(app){

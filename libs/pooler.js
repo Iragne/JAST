@@ -106,7 +106,7 @@ exports.run = function(conf){
                 console.log(e)
             }
             console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
-//            console.log(datae)
+            //console.log(data)
             url = data.url;
             ttl = data.ttl;
             if (ttl < 2)
@@ -222,14 +222,40 @@ var ssss = function (){
             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
-        key_admin = '8df9249e06236bdf5f625edd27c6613be2278fdd'
+        key_admin = '64a02dcf5852dfa17199b2c9f7c87f5939ffd837'
         var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:3};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
 }
 
+
+var test2 = function (){
+//    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
+    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    socket2.on('error', function(e){
+        console.log("error test")
+        console.log(e)
+    });
+    socket2.on('connect', function () {
+//        console.log("********************************RRRR**************************************");
+    //    console.log("********************************RRRR**************************************");
+        socket2.on('disconnect', function(){
+            console.log("********************************dec**************************************");
+        });
+        socket2.on('message', function(data){
+            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            //console.log(data);
+        });
+        key_admin = '64a02dcf5852dfa17199b2c9f7c87f5939ffd837'
+        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:3};
+        //console.log(data)
+        socket2.emit('psubscribe', data);
+    });
+}
+
 setTimeout(ssss, 4000);
+setTimeout(test2, 4000);
 /*setTimeout(ssss, 4000);
 setTimeout(ssss, 4000);
 setTimeout(ssss, 4000);

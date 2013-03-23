@@ -129,7 +129,7 @@ var runsio = function (t_admin_key,next){
     	
     	socket.on('psubscribe', function(datae) {
     	    console.log('psubscribe');
-    	    console.log(datae);
+    	    //console.log(datae);
     	    var key = datae.key;
         	var client = datae.client;
         	var app = datae.app;
@@ -175,7 +175,7 @@ var runsio = function (t_admin_key,next){
         	    console.log("url found")
             	// ask for create poolers
             	keyurl = crypto.createHash('sha1').update(url).digest('hex');
-            	m = {url: url,
+            	var m = {url: url,
                             ttl: ttl,
                         	clientid: client,
                         	appid:app,
@@ -185,7 +185,7 @@ var runsio = function (t_admin_key,next){
                            };
                            
                 m = JSON.stringify(m)
-                
+               
                 mutex.isolateCondRetry(keyurl, 10000, function check(callback) {
                 	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {
                     	if (data){
@@ -203,9 +203,10 @@ var runsio = function (t_admin_key,next){
                     	}else{
                         	callback(null, mutex.continue);
                     	}
+                    	//console.log(m)
                 	})
                 }, function isolated(callback){
-                
+                    console.log(m)
                     DB.sadd('Poolers', client+':'+keyurl, function(elt) {
                         callback(null, 'some result');
                         publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
