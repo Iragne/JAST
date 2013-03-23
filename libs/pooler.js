@@ -222,7 +222,7 @@ var ssss = function (){
             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
-        key_admin = '64a02dcf5852dfa17199b2c9f7c87f5939ffd837'
+        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
         var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:3};
         //console.log(data)
         socket2.emit('psubscribe', data);
@@ -247,7 +247,7 @@ var test2 = function (){
             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
-        key_admin = '64a02dcf5852dfa17199b2c9f7c87f5939ffd837'
+        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
         var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:3};
         //console.log(data)
         socket2.emit('psubscribe', data);

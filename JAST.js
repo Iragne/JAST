@@ -50,9 +50,13 @@ var start = function(){
                 'pass':   config.redis.password || "",
                 'maxAge': 1209600000
             })
-            
-            
         }));
+        app.use(function(req, res, next) {
+             res.on('error', function(e) {
+               return console.log('Catching an error in the response ' + e.toString());
+             });
+             return next();
+         });
         app.use(app.router);
     
         console.log("fin Config apps")
