@@ -35,11 +35,13 @@ module.exports = function (app,redis_req,database,crypto,DB,options){
                 DB.sadd(prefix+"Clients",model.ClientId);
                 DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
                 DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+                console.log("add",prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey)
             }else{
                 DB.srem(prefix+"Clients",model.ClientId);
                 DB.srem(prefix+"Apps",model.ClientId+":"+model.id);
                 DB.srem(prefix+"Apps:"+model.ClientId,model.id);
                 DB.srem(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+                console.log("del",prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey)
             }
             return res.redirect('/admin/apps/'+req.session.auth.client);
         });

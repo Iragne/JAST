@@ -11,8 +11,8 @@ module.exports = function(sequelize, DataTypes) {
     },{instanceMethods:{
         saveorupdate: function(cb){
             var data = this;
-            if (!data.secretkey)
-                data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
+            
+                
                 
             var add = function (){
                 console.log("insert");
@@ -26,6 +26,11 @@ module.exports = function(sequelize, DataTypes) {
                 apps.find(this.id).success(function(e){
                    if (e){
                         //console.log(data);
+                        data.secretkey = e.secretkey;
+                        if (!e.secretkey){
+                            console.log("regeneration key")
+                            data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
+                        }
                         e.updateAttributes(data).success(function (){
                             cb(data);
                         });                

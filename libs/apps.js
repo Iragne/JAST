@@ -30,7 +30,7 @@ module.exports.bind = function(app,options) {
 	});
 	users(app,redis_req,database,crypto,DB);
 	
-	channels(app,redis_req,database,crypto,DB);
+	channels(app,redis_req,database,crypto,DB,options);
 	
 	applications(app,redis_req,database,crypto,DB,options);
 	

@@ -1,6 +1,13 @@
 
 
-module.exports = function (app,redis_req,database,crypto,DB){
+module.exports = function (app,redis_req,database,crypto,DB,options){
+
+    const version = options.version || "1";
+    const namespace = options.namesapce || "jast";
+    const listener = options.namesapcelistener || "Feeds";
+    const prefix = "/"+version+"/"+namespace+"/";
+    
+
     app.get('/admin/apps/channel/listen/:appid/:chname', function (req, res) {
         var chname = req.params.chname;
         chname = chname.split(":");
@@ -19,11 +26,16 @@ module.exports = function (app,redis_req,database,crypto,DB){
     app.get('/admin/apps/channel/:appid', function (req, res) {
         var appid = req.params.appid.replace(/\W/g, '');
         database.Applications.find(appid).success(function(app){
-            key = app.ClientId+":"+app.id+':'+'*';
-            //console.log(key);
+            key = prefix+listener+":"+app.ClientId+":"+app.id+':'+'*';
+            console.log(key);
             DB.keys(key, function(err, data) {
                 //console.log(data);
-                res.render('apps/channel', {flux:data,a:app,session:req.session.auth});
+                tab = []
+                for (var i = 0; i < data.length; i++) {
+                    a = data[i].replace(prefix+listener+":","")
+                    tab.push(a)
+                };
+                res.render('apps/channel', {flux:tab,a:app,session:req.session.auth});
             });
         });
     });

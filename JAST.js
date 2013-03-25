@@ -96,6 +96,15 @@ var start = function(){
             };
         
     })
+    DB.keys(prefix+'AppsKey*',function(err,elts){
+        console.log("clean")
+        console.log(elts)
+        if(elts)
+            for (var i = 0; i < elts.length; i++) {
+                DB.del(elts[i])
+            };
+        
+    })
 
     database.Applications.findAll({}).success(function(apps){
         if (apps){
