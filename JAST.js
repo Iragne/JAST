@@ -18,7 +18,7 @@ var config = require("./conf.js"),
 	jast_socket = require("./libs/jast_socket.js");
 
 
-var options = {version:"1",namespace:"Feeds"};
+var options = {version:"1",namespace:"jast",namesapcelistener:"Feeds"};
 
 var DB = redis.createClient();
 var io = null;
@@ -75,13 +75,49 @@ var start = function(){
     });
     ns = io.of('/ns');
     
+    const prefix = "/"+options.version+"/"+options.namespace+"/";
+
+
+    DB.keys(prefix+'Po*',function(err,elts){
+        console.log("clean pool")
+        console.log(elts)
+        if(elts)
+            for (var i = 0; i < elts.length; i++) {
+                DB.del(elts[i])
+            };
+        
+    })
+    DB.keys(prefix+'Feed*',function(err,elts){
+        console.log("clean")
+        console.log(elts)
+        if(elts)
+            for (var i = 0; i < elts.length; i++) {
+                DB.del(elts[i])
+            };
+        
+    })
+
+    database.Applications.findAll({}).success(function(apps){
+        if (apps){
+            for (i in apps){
+                model = apps[i]
+                DB.sadd(prefix+"Clients",model.ClientId);
+                DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
+                DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+            }
+        }
+        
+    })
+
     database.Applications.find({where:{ClientId:1}}).success(function(app){
-        DB.sadd("Channels",1+":"+1+":"+"admin_channel");
-        DB.sadd("AppsKey",1+":"+1+":"+app.secretkey);
+        DB.sadd(prefix+"Channels",1+":"+1+":"+"admin_channel");
+        DB.sadd(prefix+"AppsKey",1+":"+1+":"+app.secretkey);
         jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,options,function(){
             poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});        
         });
-    });    
+    });
+
+
 };
 
 
@@ -89,6 +125,6 @@ var start = function(){
 
 
 
-database.run(DB,function(){
+database.run(function(){
     start();
 })

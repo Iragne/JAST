@@ -7,17 +7,13 @@ var	redis_req = require('redis'),
 
 module.exports.bind = function(app,options) {
 	var redis = options.redis || redis_req;
-	//var publish = redis.createClient();
 	var DB = redis.createClient();
-	/*publish.on("error", function (err) {
-        console.log("PUB Error " + err);
-    });*/
     DB.on("error", function (err) {
         console.log("DB Error " + err);
     });
 	
 	app.get("/*", function(req, res, next){
-        if(typeof req.cookies['connect.sid'] !== 'undefined'){
+        if(typeof req.cookies['connect.sid'] !== 'undefined' && req.path.indexOf("/admin/auth") == -1){
             if (!req.session.auth || !req.session.auth.client)
                 return res.redirect('/admin/auth/login');
         }
@@ -36,7 +32,7 @@ module.exports.bind = function(app,options) {
 	
 	channels(app,redis_req,database,crypto,DB);
 	
-	applications(app,redis_req,database,crypto,DB);
+	applications(app,redis_req,database,crypto,DB,options);
 	
 	
 };

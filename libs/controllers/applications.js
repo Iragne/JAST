@@ -1,4 +1,8 @@
-module.exports = function (app,redis_req,database,crypto,DB){
+module.exports = function (app,redis_req,database,crypto,DB,options){
+    const version = options.version || "1";
+    const namespace = options.namesapce || "jast";
+    const prefix = "/"+version+"/"+namespace+"/";
+
 	app.get('/admin/apps/del/:appid', function (req, res) {
     	var appid = req.params.appid.replace(/\W/g, '');
     	database.Applications.find(appid).success(function(app){
@@ -28,16 +32,14 @@ module.exports = function (app,redis_req,database,crypto,DB){
         data.active = parseInt(data.active);
         database.Applications.build(data).saveorupdate(function(model){
             if (model.active == 1){
-                DB.sadd("Clients",model.ClientId);
-                DB.sadd("Apps",model.ClientId+":"+model.id);
-                DB.sadd("AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+                DB.sadd(prefix+"Clients",model.ClientId);
+                DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
+                DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
             }else{
-                DB.srem("Clients",model.ClientId);
-                
-                DB.srem("Apps",model.ClientId+":"+model.id);
-                DB.srem("Apps:"+model.ClientId,model.id);
-                
-                DB.srem("AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+                DB.srem(prefix+"Clients",model.ClientId);
+                DB.srem(prefix+"Apps",model.ClientId+":"+model.id);
+                DB.srem(prefix+"Apps:"+model.ClientId,model.id);
+                DB.srem(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
             }
             return res.redirect('/admin/apps/'+req.session.auth.client);
         });

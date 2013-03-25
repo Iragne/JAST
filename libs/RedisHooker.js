@@ -19,20 +19,19 @@ RedisHooker.prototype.getEmmiter = function (){
 RedisHooker.prototype.addUse = function(redis,options) {
 //	console.log("===========Message===========2");
 	const subscribe = redis.createClient();
-	
-	
-	
+
 	const version = options.version || "1";
-	const namespace = options.namesapce || "Feeds";
+    const namespace = options.namesapce || "jast";
+    const listener = options.namesapcelistener || "Feeds";
+    const prefix = "/"+version+"/"+namespace+"/";
 	
 	
-	subscribe.psubscribe("/"+version+"/"+namespace+":*");
 	subscribe.on("pmessage", function(pattern, channel, message) {
 		//socket.emit('message', { channel: channel, data:  message });
 //		console.log("=========================");
-//		console.log("===========Message===========");
-//		console.log(pattern);
-//		console.log(channel);
+		//console.log("===========Message===========");
+		//console.log(pattern);
+		//console.log(channel);
 //		console.log(message);
 /*		var feeds = null;
 
@@ -51,6 +50,8 @@ RedisHooker.prototype.addUse = function(redis,options) {
 		
 		// send to dispatcher
 	});
+	console.log("watch========>"+prefix+listener+":*")
+	subscribe.psubscribe(prefix+listener+":*");
 	  
 
 };

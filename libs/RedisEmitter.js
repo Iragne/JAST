@@ -16,14 +16,51 @@ module.exports.use = function(redis,options) {
 function RedisEmitterSub() {
 	this._event = redish.getEmmiter();
 };
-RedisEmitterSub.prototype.subscribe = function(channel, callback) {
+RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     var a = this;
-	this._event.on(channel,function(data){
-	    redisinstance.set(channel,data);
-    	a.callback(data)
+    var countc = prefix+"ChannelsCounter"+channel;
+    console.log("sub count ====> "+channel);	
+    redisinstance.exists(countc,function(e){
+    	if (e)
+    		redisinstance.incr(countc)
+    	else
+    		redisinstance.set(countc,1)
+    });
+    redisinstance.exists(channel,function(){
+    	redisinstance.set(channel,1);
+    })
+	this._event.on(channel,function(datae){
+		//console.log("============================================="+channel)
+		//console.log(datae)
+		try{
+			//redisinstance.set(channel,data);
+			data = JSON.parse(datae)
+    		a.callback(data.key,data.data)
+		}catch(e){
+			console.log(e)
+		}
 	});
 	// bind to redis automatic because watching Feeds.*
 };
+RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
+    var a = this;
+    var countc = prefix+"ChannelsCounter"+channel;
+    console.log("unsub ====> "+countc);	
+    redisinstance.decr(countc,function(e){
+    	redisinstance.get(countc,function(e){
+    		if (e <= 0){
+    			redisinstance.del(countc);
+    			if(callback)
+    				callback()
+    		}
+    			
+
+    	})
+    	
+    });
+	// bind to redis automatic because watching Feeds.*
+};
+
 RedisEmitterSub.prototype.callback = function(data){
     	console.log("Not not implemented")
 }
@@ -36,29 +73,30 @@ RedisEmitterSub.prototype.on = function(event, callback) {
 		this.callback = callback;
 	}
 };
-module.exports.createSubscribe = function(channel,data){ 
-    return new RedisEmitterSub(channel,data)
+module.exports.createSubscribe = function(){ 
+    return new RedisEmitterSub()
 };
 
 
 
-function RedisEmitterPub(channel,data) {
-	redisinstance.publish(channel, data);
-	redisinstance.on("error",function(e){
-		console.log("Error hook RedisEmitterPub")
-		console.log(e)
-	})
+function RedisEmitterPub() {
+	
 };
-RedisEmitterPub.prototype.publish = function(channel, data) {
+RedisEmitterPub.prototype.publish = function(channel,key, data) {
     try {
-        redisinstance.publish(channel, data);
+    	console.log("push data===========>")
+    	var a = {key:key,data:data}
+    	var d = JSON.stringify(a);
+    	//console.log(d)
+    	redisinstance.set(channel, d)
+        redisinstance.publish(channel, d);
     }catch(e){
         console.log("NNNNNNNNNNNNN errr")
         console.log(e)
     }	
 };
-module.exports.createPublish = function(channel,data){ 
-	return new RedisEmitterPub(channel,data)
+module.exports.createPublish = function(){ 
+	return new RedisEmitterPub()
 };
 
 

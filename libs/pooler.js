@@ -4,7 +4,6 @@ var http = require("http"),
     crypto = require('crypto');
 var urlparse = require('url');
 
-//http://search.twitter.com/search.json?q=sex&rpp=5&include_entities=true&result_type=recent
 var options = {
  hostname: "search.twitter.com",
  path: "/search.json?q=nodejs&rpp=5&include_entities=true&result_type=recent",
@@ -21,42 +20,6 @@ RedisEmitter_events.on("error",function(e){
     console.log("EvEmit");
     console.log(e);
 }) 
-//jsondiffpatch.config.diff_match_patch = require('./diff_match_patch_uncompressed.js');
-
-// use text diff for strings longer than 5 chars 
-
-
-///var d = jsondiffpatch.diff({ age: 5, name: 'Arturo' }, {age: 7, name: 'Armando' });
-
-//console.log(d)
-
-
-
-
-
-
-
-
-
-
-/*
-var socket2 = require('socket.io-client').connect('http://localhost:4242/ns');
-socket2.on('connect', function () {
-//    console.log("********************************RRRR**************************************");
-//    console.log("********************************RRRR**************************************");
-    socket2.on('disconnect', function(){});
-    socket2.on('message', function(data){
-        //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-        //console.log(data);
-    });
-    data = {client:1, key: key_admin, app:1,channel:"adelskott"};
-    socket.emit('psubscribe', data,function (){
-        console.log("ERROR SOCKET");
-        //console.log(e);
-    });
-});
-
-*/
 
 var socket = null;
 var channel_emmit = function (){
@@ -82,7 +45,7 @@ var channel_emmit = function (){
         });
     
 }
-exports.run = function(conf){
+exports.run = function(conf,options){
 //    return;    
     channel_emmit();
     var key_admin = conf.key_admin || '4dc31927dc719858c134d09b5941fe6db7ec6606';
@@ -98,6 +61,10 @@ exports.run = function(conf){
         socket_listen.on('disconnect', function(e){
             console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
         });
+        socket_listen.on('killpoller',function (datae){
+            console.log("Kill pooler "+datae.channel)
+            RedisEmitter_events.emit(datae.channel,datae)
+        });
         socket_listen.on('message',function (datae){
             data = null;
             try{
@@ -105,8 +72,9 @@ exports.run = function(conf){
             }catch(e){
                 console.log(e)
             }
+            console.log(data)
             console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
-            //console.log(data)
+            
             var url = data.url;
             var ttl = data.ttl;
             if (ttl  == 0)
@@ -117,6 +85,9 @@ exports.run = function(conf){
             var keysecret = data.keysecret;
             var olddata = null;
             var olddata_json = null;
+            var stop = false;
+            
+
             var getRestData = function (){
                 console.log("getdata "+url)
                 var request = http.get(urlparse.parse(url), function(res){
@@ -132,17 +103,22 @@ exports.run = function(conf){
                                                                        message:body,
                                                                        channel:channel});
                         }
-                        setTimeout(getRestData,ttl*1000);
+                        if(!stop)
+                            setTimeout(getRestData,ttl*1000);
                     });
                     
                     res.on("error",function (e) {
                         console.log("ERROR SOCKET");
                         console.log(e);
-                        setTimeout(getRestData,ttl*1000);
+                        if(!stop)
+                            setTimeout(getRestData,ttl*1000);
                     });
                 });
             };
             getRestData();
+            RedisEmitter_events.on("/1/jast/Feeds:"+clientid+":"+appid+":"+channel,function(){
+                stop = true;
+            })
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
         socket_listen.emit('psubscribe', data,function (e){
@@ -150,6 +126,16 @@ exports.run = function(conf){
         });
     });
 }
+
+//jsondiffpatch.config.diff_match_patch = require('./diff_match_patch_uncompressed.js');
+
+// use text diff for strings longer than 5 chars 
+
+
+///var d = jsondiffpatch.diff({ age: 5, name: 'Arturo' }, {age: 7, name: 'Armando' });
+
+
+
 
 
 /*
@@ -205,77 +191,3 @@ exports.run = function(conf){
 */
 
 
-var ssss = function (){
-//    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
-    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
-    socket2.on('error', function(e){
-        console.log("error test")
-        console.log(e)
-    });
-    socket2.on('connect', function () {
-//        console.log("********************************RRRR**************************************");
-    //    console.log("********************************RRRR**************************************");
-        socket2.on('disconnect', function(){
-            console.log("********************************dec**************************************");
-        });
-        socket2.on('message', function(data){
-            //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-            //console.log(data);
-        });
-        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:1};
-        //console.log(data)
-        socket2.emit('psubscribe', data);
-    });
-}
-
-
-var test2 = function (){
-//    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
-    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
-    socket2.on('error', function(e){
-        console.log("error test")
-        console.log(e)
-    });
-    socket2.on('connect', function () {
-//        console.log("********************************RRRR**************************************");
-    //    console.log("********************************RRRR**************************************");
-        socket2.on('disconnect', function(){
-            console.log("********************************dec**************************************");
-        });
-        socket2.on('message', function(data){
-            //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-            //console.log(data);
-        });
-        key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:1};
-        //console.log(data)
-        socket2.emit('psubscribe', data);
-    });
-}
-
-setTimeout(ssss, 4000);
-setTimeout(test2, 4000);
-/*setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-setTimeout(ssss, 4000);
-*/

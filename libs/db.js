@@ -1,7 +1,7 @@
 var Sequelize = require('Sequelize'),
     crypto = require('crypto');
 
-var run = function (DB,next){
+var run = function (next){
     var  sequelize = new Sequelize('jast', 'root', 'toto', {
         host: 'localhost',
         port: 3306,
@@ -72,18 +72,6 @@ var run = function (DB,next){
                         
                         
                     }).error(function(){});
-                    DB.del('Poolers')
-                    Applications.findAll({}).success(function(apps){
-                        if (apps){
-                            for (i in apps){
-                                model = apps[i]
-                                DB.sadd("Clients",model.ClientId);
-                                DB.sadd("Apps",model.ClientId+":"+model.id);
-                                DB.sadd("AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
-                            }
-                        }
-                        
-                    })
                     
                     next();
                     console.log("******************************************************************************");
