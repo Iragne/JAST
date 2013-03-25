@@ -1,10 +1,3 @@
-HOST = process.argv[2] || "127.0.0.1",
-//HOST = "localhost",
-PORT =  process.argv[3] || "4242";
-
-
-
-
 var config = require("./conf.js"),
 	logger = require("./libs/logger.js").setup(config),
 	redis_emmitter = require("./libs/RedisEmitter.js"),
@@ -18,9 +11,16 @@ var config = require("./conf.js"),
 	jast_socket = require("./libs/jast_socket.js");
 
 
-var options = {version:"1",namespace:"jast",namesapcelistener:"Feeds"};
 
-var DB = redis.createClient();
+var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+if (config.redis.password){
+    DB.auth(config.redis.password,function(e){
+
+    });
+}
+DB.on("error", function (err) {
+    console.log("DB Error " + err);
+});
 var io = null;
 var ns = null;
 
@@ -43,9 +43,9 @@ var start = function(){
         app.use(express.session({
             secret: config.sessionSecret || "12345",
             store:  new RedisStore({
-                'host':   config.redis.host || "127.0.0.1",
-                'port':   config.redis.port || 6379,
-                'pass':   config.redis.password || "",
+                'host':   config.express.redis_store.host || "127.0.0.1",
+                'port':   config.express.redis_store.port || 6379,
+                'pass':   config.express.redis_store.password || "",
                 'maxAge': 1209600000
             })
         }));
@@ -60,10 +60,10 @@ var start = function(){
         console.log("fin Config apps")
     })
     app.use(express.compress());
-    app.listen(PORT);
+    app.listen(config.express.port);
     
-    admin.bind(app,options);
-    redis_emmitter.use(redis,options);
+    admin.bind(app,DB);
+    redis_emmitter.use(config);
     
     
     
@@ -73,9 +73,9 @@ var start = function(){
     io.configure( function() {
     //    io.set('close timeout', 60*60*24); // 24h time out
     });
-    ns = io.of('/ns');
+    ns = io.of("/"+config.express.websocket);
     
-    const prefix = "/"+options.version+"/"+options.namespace+"/";
+    const prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
 
 
     DB.keys(prefix+'Po*',function(err,elts){
@@ -121,7 +121,7 @@ var start = function(){
     database.Applications.find({where:{ClientId:1}}).success(function(app){
         DB.sadd(prefix+"Channels",1+":"+1+":"+"admin_channel");
         DB.sadd(prefix+"AppsKey",1+":"+1+":"+app.secretkey);
-        jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,options,function(){
+        jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,function(){
             poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});        
         });
     });

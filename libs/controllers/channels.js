@@ -1,10 +1,14 @@
+var Sequelize = require('Sequelize'),
+    crypto = require('crypto'),
+    database =  require('../db.js'),
+    config = require("../../conf.js");
 
 
-module.exports = function (app,redis_req,database,crypto,DB,options){
+module.exports = function (app,DB){
 
-    const version = options.version || "1";
-    const namespace = options.namesapce || "jast";
-    const listener = options.namesapcelistener || "Feeds";
+    const version = config.jast.version || "1";
+    const namespace = config.jast.namesapce || "jast";
+    const listener = config.jast.namesapcelistener || "Feeds";
     const prefix = "/"+version+"/"+namespace+"/";
     
 

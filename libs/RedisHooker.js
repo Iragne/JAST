@@ -1,6 +1,7 @@
 var util = require('util'),
-	EventEmitter = require('events').EventEmitter,
-    redis = require('redis');
+	redis = require('redis'),
+	EventEmitter = require('events').EventEmitter;
+    //redis = require('redis');
 
 
 const RedisEmitter_events = new EventEmitter();
@@ -16,19 +17,26 @@ var RedisHooker = module.exports = function() {
 RedisHooker.prototype.getEmmiter = function (){
     return RedisEmitter_events;
 }
-RedisHooker.prototype.addUse = function(redis,options) {
+RedisHooker.prototype.addUse = function(config) {
 //	console.log("===========Message===========2");
-	const subscribe = redis.createClient();
 
-	const version = options.version || "1";
-    const namespace = options.namesapce || "jast";
-    const listener = options.namesapcelistener || "Feeds";
+	const subscribe = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+    if (config.redis.password){
+        subscribe.auth(config.redis.password,function(e){
+
+        });
+    }
+
+
+	const version = config.jast.version || "1";
+    const namespace = config.jast.namesapce || "jast";
+    const listener = config.jast.namesapcelistener || "Feeds";
     const prefix = "/"+version+"/"+namespace+"/";
 	
 	
 	subscribe.on("pmessage", function(pattern, channel, message) {
 		//socket.emit('message', { channel: channel, data:  message });
-//		console.log("=========================");
+		//console.log("=========================");
 		//console.log("===========Message===========");
 		//console.log(pattern);
 		//console.log(channel);

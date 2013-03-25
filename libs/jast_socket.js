@@ -1,8 +1,8 @@
 var Mutex = require('mutex'),
-    mutex = new Mutex(),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    config = require("../conf.js");
 
-            
+var mutex = null;
 
 var checkdata = function(socket,data,clientid,appkey){
     var key = data.key;
@@ -14,12 +14,14 @@ var checkdata = function(socket,data,clientid,appkey){
     return true;
 }        
 
-module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next){
-    const version = options.version || "1";
-    const namespace = options.namesapce || "jast";
-    const listener = options.namesapcelistener || "Feeds";
+module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
+    const version = config.jast.version || "1";
+    const namespace = config.jast.namesapce || "jast";
+    const listener = config.jast.namesapcelistener || "Feeds";
     const prefix = "/"+version+"/"+namespace+"/";
     const admin_channel = prefix+listener+":1:1:admin_channel";
+
+    mutex = new Mutex({redis:DB});
 
     console.log("runsio")
     ns.on('connection', function(socket) {
@@ -44,20 +46,20 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
                     subscribe.unsubscribe(channel,prefix,function(){
                         // plus de subscriber au channel
                         // kill pooler du channel
-                        var clientapppoller = channel;
-                        clientapppoller = clientapppoller.replace(prefix+listener,prefix+"Pollers")
-                        //clientapppoller.replace(clientapppoller,)prefix+listener+":"+clientid+':'+appid+':'
-                        console.log("kill JAJAJAJJ =>  "+clientapppoller)
-                        DB.del(clientapppoller)
+                        var clientapppooler = channel;
+                        clientapppooler = clientapppooler.replace(prefix+listener,prefix+"Poolers")
+                        //clientapppooler.replace(clientapppooler,)prefix+listener+":"+clientid+':'+appid+':'
+                        console.log("kill JAJAJAJJ =>  "+clientapppooler)
+                        DB.del(clientapppooler)
                         console.log("kill JAJAJAJJ =>  "+channel)
-                        DB.get(clientapppoller,function(e){
-                            // keyurlclient = prefix+"Pollers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
+                        DB.get(clientapppooler,function(e){
+                            // keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                             var m = {
                                 clientid: clientid,
                                 appid:appid,
                                 channel:channel
                             };
-                            redis_emmitter.createPublish().publish(admin_channel,"killpoller",m);
+                            redis_emmitter.createPublish().publish(admin_channel,"killpooler",m);
 
                         })
                     });
@@ -106,23 +108,23 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
             var url = data.url;
             var keyurlclient = null;
             if (url){
-                keyurlclient = "Pollers:"+clientid+':'+crypto.createHash('sha1').update(url).digest('hex');
+                keyurlclient = "Poolers:"+clientid+':'+crypto.createHash('sha1').update(url).digest('hex');
                 data.channel = keyurlclient;
             }
             var channel = null;
             if (datae.channel)
                 channel = datae.channel;
             var ch = prefix+listener+":"+clientid+":"+appid+":"+channel;
-            var clientapppoller = prefix+"Pollers:"+clientid+':'+appid+':'+channel;
+            var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
             subscribe.unsubscribe(ch,prefix,function(){
                 // call del pooler
-                DB.get(clientapppoller,function(e){
+                DB.get(clientapppooler,function(e){
                     var m = {
                         clientid: clientid,
                         appid:appid,
                         channel:channel
                     };
-                    redis_emmitter.createPublish(admin_channel,"killpoller",m);
+                    redis_emmitter.createPublish(admin_channel,"killpooler",m);
                 })
             });
         });
@@ -145,7 +147,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
             var keyurlclient = null;
             if (url){
                 urlk = crypto.createHash('sha1').update(url).digest('hex');
-                keyurlclient = "Pollers:"+clientid+':'+urlk;
+                keyurlclient = "Poolers:"+clientid+':'+urlk;
                 datae.channel = urlk;
             }
             var channel = null;
@@ -165,7 +167,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
             	        console.log("create sub")
                 	    subscribe =redis_emmitter.createSubscribe(ch)
             	    }
-//                	    console.log(ch)
+                    console.log(ch)
                     channels.push({channel:ch})
                 	
                 	subscribe.on("pmessage", function(key,pmessage) {
@@ -175,6 +177,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
                     		socket.emit(key, pmessage);
                     });
                     subscribe.subscribe(ch,prefix);
+                    //console.log("qsDQUDFYGIUQohiofhuisqgfhugiuqsgfugsduigqiusdfi")
             	}else{
                     console.log("No key for the client found here : " + clientAndKey + " channel send " + channel);
                     // close all
@@ -186,8 +189,8 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
         	if (url){
         	    console.log("url found")
             	// ask for create poolers
-            	keyurlclient = prefix+"Pollers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
-                var clientapppoller = prefix+"Pollers:"+clientid+':'+appid+':'+channel;
+            	keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
+                var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
             	var m = {url: url,
                             ttl: ttl,
                         	clientid: clientid,
@@ -199,9 +202,11 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
                            
                 m = JSON.stringify(m)
 
+                console.log("Mutex")
+                //return;
                 mutex.isolateCondRetry(keyurlclient, 10000, function check(callback) {
                     // check si pooler 
-                    
+                    console.log("check si pooler ")
                 	DB.exists(keyurlclient, function(err, data) {
                     	if (data){
                             // inc le nb de pooler
@@ -226,7 +231,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
                 	})
                 }, function isolated(callback){
                     //console.log(m)
-                    // create poller log
+                    // create pooler log
                     DB.set(keyurlclient, 1, function(elt) {
                         // send data to admin
                         console.log("push direct redis to "+ admin_channel)
@@ -235,7 +240,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,options,next)
                         callback(null, 'some result');
                     });
                     // define the pooler id
-                    DB.set(clientapppoller, 1, function(elt) {
+                    DB.set(clientapppooler, 1, function(elt) {
                     });
                 }, function after(err, result) {
                     console.log(result); 

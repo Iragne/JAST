@@ -1,10 +1,11 @@
 var Sequelize = require('Sequelize'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    config = require("../conf.js");
 
 var run = function (next){
-    var  sequelize = new Sequelize('jast', 'root', 'toto', {
-        host: 'localhost',
-        port: 3306,
+    var  sequelize = new Sequelize(config.mysql.database, config.mysql.username, config.mysql.password, {
+        host: config.mysql.host,
+        port: config.mysql.port,
         protocol: 'tcp',
         logging: console.log,
         maxConcurrentQueries: 100,
@@ -62,10 +63,10 @@ var run = function (next){
                     
                     Applications.build({
                         id: 1,
-                        name: 'privatepooler',
+                        name: 'Privatepooler',
                         description: 'Admin channel',
                         bundle: '',
-                        secretkey: crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex'),
+                        secretkey: crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex'),
                         active: 1,
                         ClientId: 1
                     }).save().success(function(e){

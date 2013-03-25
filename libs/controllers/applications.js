@@ -1,6 +1,10 @@
-module.exports = function (app,redis_req,database,crypto,DB,options){
-    const version = options.version || "1";
-    const namespace = options.namesapce || "jast";
+var database =  require('../db.js'),
+    crypto = require('crypto'),
+    config = require("../../conf.js");
+
+module.exports = function (app,DB){
+    const version = config.jast.version || "1";
+    const namespace = config.jast.namesapce || "jast";
     const prefix = "/"+version+"/"+namespace+"/";
 
 	app.get('/admin/apps/del/:appid', function (req, res) {

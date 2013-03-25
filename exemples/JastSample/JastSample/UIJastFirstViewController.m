@@ -53,7 +53,7 @@
 }
 -(void)socketconnect{
     socketIO = [[SocketIO alloc] initWithDelegate:self];
-    [socketIO connectToHost:@"localhost" onPort:4242 withParams:nil withNamespace:@"/ns"];
+    [socketIO connectToHost:@"localhost" onPort:80 withParams:nil withNamespace:@"/ns"];
     [self refreshbt];
 }
 - (void) socketIODidDisconnect:(SocketIO *)socket disconnectedWithError:(NSError *)error{

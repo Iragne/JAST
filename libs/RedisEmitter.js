@@ -1,15 +1,22 @@
 var util = require('util'),
+    redis = require('redis'),
     RedisHooker = require('./RedisHooker.js');
    
 
 var redish = new RedisHooker();
 var redisinstance = null;
 
-module.exports.use = function(redis,options) {
-	redish.use(redis,options);
-	redisinstance = redis.createClient();
+module.exports.use = function(config) {
+	redish.use(config);
+	redisinstance = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+    if (config.redis.password){
+        redisinstance.auth(config.redis.password,function(e){
+
+        });
+    }
+    console.log("create instance")
 	redisinstance.on("error", function (err) {
-        console.log("Error " + err);
+        console.log("RedisEmitterSub " + err);
     });
 };
 
@@ -19,7 +26,7 @@ function RedisEmitterSub() {
 RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
-    console.log("sub count ====> "+channel);	
+    console.log("sub count ====> "+channel);
     redisinstance.exists(countc,function(e){
     	if (e)
     		redisinstance.incr(countc)
@@ -33,6 +40,7 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
 		//console.log("============================================="+channel)
 		//console.log(datae)
 		try{
+            //console.log("============================================="+channel)
 			//redisinstance.set(channel,data);
 			data = JSON.parse(datae)
     		a.callback(data.key,data.data)

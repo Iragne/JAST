@@ -1,5 +1,6 @@
 var Sequelize = require('Sequelize'),
-        crypto = require('crypto');;
+    crypto = require('crypto'),
+    config = require("../../conf.js");
 
 module.exports = function(sequelize, DataTypes) {
     var apps = sequelize.define('Application', {
@@ -16,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
                 
             var add = function (){
                 console.log("insert");
-                data.secret = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
+                data.secret = crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex');
                 data.save().success(function (savedata){
                     cb(savedata.values);
                 });
@@ -29,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
                         data.secretkey = e.secretkey;
                         if (!e.secretkey){
                             console.log("regeneration key")
-                            data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+'dsdqsfsgfsgdfs').digest('hex');
+                            data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex');
                         }
                         e.updateAttributes(data).success(function (){
                             cb(data);

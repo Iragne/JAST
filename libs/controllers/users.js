@@ -1,6 +1,10 @@
+var Sequelize = require('Sequelize'),
+    crypto = require('crypto'),
+    database =  require('../db.js'),
+    config = require("../../conf.js");
 
 
-module.exports = function (app,redis_req,database,crypto,DB){
+module.exports = function (app,DB){
 	var login_action = function (login,passe,callback){
        if (login == null || passe == null)
            return callback(false,0);

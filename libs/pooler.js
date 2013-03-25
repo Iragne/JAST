@@ -1,13 +1,11 @@
 var http = require("http"),
     diff_match_patch=require('jajsondiff'),
     EventEmitter = require('events').EventEmitter,
-    crypto = require('crypto');
-var urlparse = require('url');
+    config = require("../conf.js"),
+    crypto = require('crypto'),
+    urlparse = require('url');
 
-var options = {
- hostname: "search.twitter.com",
- path: "/search.json?q=nodejs&rpp=5&include_entities=true&result_type=recent",
-}
+
 const RedisEmitter_events = new EventEmitter();
 
 const dmp =new diff_match_patch.difftext();
@@ -23,9 +21,11 @@ RedisEmitter_events.on("error",function(e){
 
 var socket = null;
 var channel_emmit = function (){
-    
+        
+        var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket
+        console.log("Channel admin Listen "+url)
         if (socket == null)
-            socket = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+            socket = require('socket.io-client').connect(url,{'force new connection': true});
         socket.on('error', function(e){
             console.log("error admin channel")
             console.log(e)
@@ -45,23 +45,25 @@ var channel_emmit = function (){
         });
     
 }
-exports.run = function(conf,options){
+exports.run = function(conf){
 //    return;    
     channel_emmit();
     var key_admin = conf.key_admin || '4dc31927dc719858c134d09b5941fe6db7ec6606';
     var client_admin = conf.client_admin || 1;
     var app_admin = conf.app_admin || 1;
 
-    var socket_listen = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket;
+    var socket_listen = require('socket.io-client').connect(url,{'force new connection': true});
     socket_listen.on('error', function(e){
             console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
+            console.log(e)
     });
     socket_listen.on('connect', function () {
         console.log("Listen connected")
         socket_listen.on('disconnect', function(e){
             console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
         });
-        socket_listen.on('killpoller',function (datae){
+        socket_listen.on('killpooler',function (datae){
             console.log("Kill pooler "+datae.channel)
             RedisEmitter_events.emit(datae.channel,datae)
         });
@@ -95,6 +97,8 @@ exports.run = function(conf,options){
                     res.setEncoding('binary');
                     res.on('data', function(chunk){body += chunk;});
                     res.on('end', function(){
+                        if (stop)
+                            return;
                         if (body != olddata || olddata == null){
                             olddata = body;
                             RedisEmitter_events.emit('pooler_message',{client:clientid,
@@ -103,7 +107,7 @@ exports.run = function(conf,options){
                                                                        message:body,
                                                                        channel:channel});
                         }
-                        if(!stop)
+                        if (!stop)
                             setTimeout(getRestData,ttl*1000);
                     });
                     
@@ -114,9 +118,14 @@ exports.run = function(conf,options){
                             setTimeout(getRestData,ttl*1000);
                     });
                 });
+                request.on("error",function (e) {
+                    console.log("ERROR SOCKET");
+                    console.log(e);
+                });
             };
-            getRestData();
-            RedisEmitter_events.on("/1/jast/Feeds:"+clientid+":"+appid+":"+channel,function(){
+            if(!stop)
+                getRestData();
+            RedisEmitter_events.on("/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel,function(){
                 stop = true;
             })
         });

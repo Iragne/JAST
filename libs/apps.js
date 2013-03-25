@@ -3,15 +3,17 @@ var	redis_req = require('redis'),
     crypto = require('crypto'),
     applications = require('./controllers/applications.js'),
     channels = require('./controllers/channels.js'),
-    users = require('./controllers/users.js');
+    users = require('./controllers/users.js'),
+    redis = require('redis'),
+    config = require("../conf.js");
 
-module.exports.bind = function(app,options) {
-	var redis = options.redis || redis_req;
-	var DB = redis.createClient();
-    DB.on("error", function (err) {
-        console.log("DB Error " + err);
-    });
-	
+module.exports.bind = function(app) {
+    var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+    if (config.redis.password){
+        DB.auth(config.redis.password,function(e){
+
+        });
+    }
 	app.get("/*", function(req, res, next){
         if(typeof req.cookies['connect.sid'] !== 'undefined' && req.path.indexOf("/admin/auth") == -1){
             if (!req.session.auth || !req.session.auth.client)
@@ -28,11 +30,11 @@ module.exports.bind = function(app,options) {
     	}
     	return res.redirect('/admin/auth/login');
 	});
-	users(app,redis_req,database,crypto,DB);
+	users(app,DB);
 	
-	channels(app,redis_req,database,crypto,DB,options);
+	channels(app,DB);
 	
-	applications(app,redis_req,database,crypto,DB,options);
+	applications(app,DB);
 	
 	
 };
