@@ -1,5 +1,4 @@
-var Sequelize = require('Sequelize'),
-    crypto = require('crypto'),
+var crypto = require('crypto'),
     database =  require('../db.js'),
     config = require("../../conf.js");
 
