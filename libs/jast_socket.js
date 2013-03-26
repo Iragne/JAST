@@ -167,13 +167,13 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
             	        console.log("create sub")
                 	    subscribe =redis_emmitter.createSubscribe(ch)
             	    }
-                    console.log(ch)
+                    //console.log(ch)
                     channels.push({channel:ch})
                 	
                 	subscribe.on("pmessage", function(key,pmessage) {
 //                      		console.log("--------------------------------------------=====aaa");
 //                        		console.log(pmessage);
-                            console.log(key)
+                            //console.log(key)
                     		socket.emit(key, pmessage);
                     });
                     subscribe.subscribe(ch,prefix);

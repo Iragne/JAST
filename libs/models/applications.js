@@ -1,4 +1,4 @@
-var Sequelize = require('Sequelize'),
+var Sequelize = require('sequelize'),
     crypto = require('crypto'),
     config = require("../../conf.js");
 

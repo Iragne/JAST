@@ -121,6 +121,7 @@ exports.run = function(conf){
                 request.on("error",function (e) {
                     console.log("ERROR SOCKET");
                     console.log(e);
+                    stop = true;
                 });
             };
             if(!stop)
