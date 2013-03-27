@@ -9,6 +9,9 @@ var	redis_req = require('redis'),
 
 module.exports.bind = function(app) {
     var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+    DB.on("error", function (err) {
+        console.log("DB Error " + err);
+    });
     if (config.redis.password){
         DB.auth(config.redis.password,function(e){
 

@@ -21,6 +21,9 @@ RedisHooker.prototype.addUse = function(config) {
 //	console.log("===========Message===========2");
 
 	const subscribe = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+	subscribe.on("error", function (err) {
+        console.log("RedisEmitter_events " + err);
+    });
     if (config.redis.password){
         subscribe.auth(config.redis.password,function(e){
 

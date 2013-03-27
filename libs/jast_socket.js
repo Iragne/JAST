@@ -1,8 +1,21 @@
 var Mutex = require('mutex'),
     crypto = require('crypto'),
+    redis = require('redis'),
     config = require("../conf.js");
 
-var mutex = null;
+
+var redis_mutex = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+redis_mutex.on("error", function (err) {
+    console.log("redis_mutex " + err);
+});
+if (config.redis.password){
+    redis_mutex.auth(config.redis.password,function(e){
+        console.log(e)
+        if (e)
+        throw e;
+    });
+}
+var mutex = new Mutex({redis:redis_mutex,pass:config.redis.password});
 
 var checkdata = function(socket,data,clientid,appkey){
     var key = data.key;
@@ -21,7 +34,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
     const prefix = "/"+version+"/"+namespace+"/";
     const admin_channel = prefix+listener+":1:1:admin_channel";
 
-    mutex = new Mutex({redis:DB});
+    
 
     console.log("runsio")
     ns.on('connection', function(socket) {
@@ -189,7 +202,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         	if (url){
         	    console.log("url found")
             	// ask for create poolers
-            	keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
+            	var keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                 var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
             	var m = {url: url,
                             ttl: ttl,
@@ -200,48 +213,51 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         	
                            };
                            
-                m = JSON.stringify(m)
+                var m = JSON.stringify(m)
 
                 console.log("Mutex")
                 //return;
-                mutex.isolateCondRetry(keyurlclient, 10000, function check(callback) {
+                mutex.isolateCondRetry(keyurlclient, 100000000, function check(callback) {
+                    console.log("GOTO MUTEX")
+                    callback(null, mutex.continue);
+                }, function isolated(callback){
                     // check si pooler 
                     console.log("check si pooler ")
-                	DB.exists(keyurlclient, function(err, data) {
-                    	if (data){
+                    DB.exists(keyurlclient, function(err, data) {
+                        if (data){
                             // inc le nb de pooler
                            DB.incr(keyurlclient,function(){});
                            //check si un flux de pooler
-                    	   DB.get(prefix+listener+":"+clientid+":"+appid+":"+channel,function (err,elt){
-    //                	       console.log(elt)
-                    	       if (elt){
-                    	           console.log("VERSION DU FEEDS")
-                    	           socket.emit('message', elt);
-                    	       }else{
-                        	       console.log("PAS DE VERSION DU FEEDS")
+                           DB.get(prefix+listener+":"+clientid+":"+appid+":"+channel,function (err,elt){
+    //                         console.log(elt)
+                               if (elt){
+                                   console.log("VERSION DU FEEDS")
+                                   socket.emit('message', elt);
+                               }else{
+                                   console.log("PAS DE VERSION DU FEEDS")
                                    // create pooler
-                        	       publishp = redis_emmitter.createPublish(admin_channel,"message",m);
-                    	       }
-                    	       callback(null, 'cached')
-                	       })
-                    	}else{
-                        	callback(null, mutex.continue);
-                    	}
-                    	//console.log(m)
-                	})
-                }, function isolated(callback){
+                                   publishp = redis_emmitter.createPublish(admin_channel,"message",m);
+                               }
+                               callback(null,"pooler exist")
+                           })
+                        }else{
+                           // create pooler log
+                            DB.set(keyurlclient, 1, function(elt) {
+                                // send data to admin
+                                console.log("push direct redis to "+ admin_channel)
+                                publishp = redis_emmitter.createPublish();
+                                publishp.publish(admin_channel,"message",m); 
+                                DB.set(clientapppooler, 1, function(elt) {
+                                    callback(null,"pooler create")
+                                }); 
+                            });
+                            // define the pooler id
+                            
+                        }
+                        //console.log(m)
+                    })
                     //console.log(m)
-                    // create pooler log
-                    DB.set(keyurlclient, 1, function(elt) {
-                        // send data to admin
-                        console.log("push direct redis to "+ admin_channel)
-                        publishp = redis_emmitter.createPublish();
-                        publishp.publish(admin_channel,"message",m); 
-                        callback(null, 'some result');
-                    });
-                    // define the pooler id
-                    DB.set(clientapppooler, 1, function(elt) {
-                    });
+                    
                 }, function after(err, result) {
                     console.log(result); 
                 })

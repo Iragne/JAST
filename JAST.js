@@ -13,14 +13,15 @@ var config = require("./conf.js"),
 
 
 var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
-if (config.redis.password){
-    DB.auth(config.redis.password,function(e){
-
-    });
-}
 DB.on("error", function (err) {
     console.log("DB Error " + err);
 });
+
+if (config.redis.password){
+    DB.auth(config.redis.password,function(e){
+        
+    });
+}
 var io = null;
 var ns = null;
 

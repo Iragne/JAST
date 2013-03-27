@@ -1,15 +1,16 @@
 HOST = process.argv[2] || "127.0.0.1",
-PORT =  process.argv[3] || "4242";
-key_admin =  process.argv[4] || "7c7b2bfaa4ee4094b390e94c2212aed04326871c";
+PORT =  process.argv[3] || "80";
+key_admin =  process.argv[4] || "1787db1a41077033b72e3ec9393db4b4baf04f50";
+nbinjector =  process.argv[5] || "4";
+nbconcurent =  process.argv[6] || "4";
 
 var http = require("http"),
-    diff_match_patch=require('jajsondiff'),
     EventEmitter = require('events').EventEmitter,
     crypto = require('crypto');
 
 var ssss = function (){
 //    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
-    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    var socket2 = require('socket.io-client').connect('http://'+HOST+':'+PORT+'/ns',{'force new connection': true});
     socket2.on('error', function(e){
         console.log("error test")
         console.log(e)
@@ -21,11 +22,11 @@ var ssss = function (){
             console.log("********************************dec**************************************");
         });
         socket2.on('message', function(data){
-            //console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+            console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
             //console.log(data);
         });
         //key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=adelskott&rpp=5&include_entities=true&result_type=recent",ttl:1};
+        var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sexy&rpp=5&include_entities=true&result_type=recent",ttl:10};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
@@ -34,7 +35,7 @@ var ssss = function (){
 
 var test2 = function (){
 //    console.log("HOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOOHOOOOOOOOOOOOOO")
-    var socket2 = require('socket.io-client').connect('http://localhost:4242/ns',{'force new connection': true});
+    var socket2 = require('socket.io-client').connect('http://'+HOST+':'+PORT+'/ns',{'force new connection': true});
     socket2.on('error', function(e){
         console.log("error test")
         console.log(e)
@@ -50,12 +51,22 @@ var test2 = function (){
             //console.log(data);
         });
         //key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
-        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:1};
+        var data = {client:1, key: key_admin, app:2,channel:"marseille",url:"http://www.thefanclub.com/marseille.ijson",ttl:5};
         //console.log(data)
         socket2.emit('psubscribe', data);
     });
 }
+nbinjector =  process.argv[5] || "4";
+nbconcurent =  process.argv[6] || "4";
 
-setTimeout(ssss, 4000);
-setTimeout(test2, 4000);
+for (var i = 0; i < parseInt(nbinjector); i++) {
+    for (var j = 0; j < parseInt(nbconcurent); j++) {
+        setTimeout(ssss, 1000);
+        setTimeout(test2, 1000);
+    };
+};
+
+
+
+
 

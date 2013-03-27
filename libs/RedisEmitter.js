@@ -9,15 +9,18 @@ var redisinstance = null;
 module.exports.use = function(config) {
 	redish.use(config);
 	redisinstance = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
+    redisinstance.on("error", function (err) {
+        console.log("RedisEmitterSub " + err);
+    });
     if (config.redis.password){
+        console.log("add auth "+config.redis.password)
         redisinstance.auth(config.redis.password,function(e){
-
+            if(e)
+                throw e;
         });
     }
     console.log("create instance")
-	redisinstance.on("error", function (err) {
-        console.log("RedisEmitterSub " + err);
-    });
+	
 };
 
 function RedisEmitterSub() {
