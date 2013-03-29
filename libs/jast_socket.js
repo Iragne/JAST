@@ -54,6 +54,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
     	socket.on('disconnect',function (){
         	console.log("disconnect JAAJA ***********");
             if (subscribe && channels.length){
+                console.log(channels)
                 for (var i = 0; i < channels.length; i++) {
                     var channel = channels[i].channel;
                     subscribe.unsubscribe(channel,prefix,function(){
@@ -62,10 +63,10 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         var clientapppooler = channel;
                         clientapppooler = clientapppooler.replace(prefix+listener,prefix+"Poolers")
                         //clientapppooler.replace(clientapppooler,)prefix+listener+":"+clientid+':'+appid+':'
-                        console.log("kill JAJAJAJJ =>  "+clientapppooler)
+                        //console.log("kill JAJAJAJJ =>  "+clientapppooler)
                         DB.del(clientapppooler)
-                        console.log("kill JAJAJAJJ =>  "+channel)
-                        DB.get(clientapppooler,function(e){
+                        console.log("kill Channel =>  "+channel)
+                        DB.get(clientapppooler,function(err,e){
                             // keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                             var m = {
                                 clientid: clientid,
@@ -129,15 +130,19 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                 channel = datae.channel;
             var ch = prefix+listener+":"+clientid+":"+appid+":"+channel;
             var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
+            //var keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
             subscribe.unsubscribe(ch,prefix,function(){
                 // call del pooler
-                DB.get(clientapppooler,function(e){
+                // mutex(clientapppooler)
+                // dec 
+                // si dec == 0
+                DB.get(clientapppooler,function(err,e){
                     var m = {
                         clientid: clientid,
                         appid:appid,
                         channel:channel
                     };
-                    redis_emmitter.createPublish(admin_channel,"killpooler",m);
+                    redis_emmitter.createPublish().publish(admin_channel,"killpooler",m);
                 })
             });
         });
@@ -183,10 +188,8 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                     //console.log(ch)
                     channels.push({channel:ch})
                 	
-                	subscribe.on("pmessage", function(key,pmessage) {
-//                      		console.log("--------------------------------------------=====aaa");
-//                        		console.log(pmessage);
-                            //console.log(key)
+                	subscribe.on("pmessage", function(key,channel,pmessage) {
+//                            console.log("sendmessage")
                     		socket.emit(key, pmessage);
                     });
                     subscribe.subscribe(ch,prefix);
@@ -224,23 +227,44 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                     // check si pooler 
                     console.log("check si pooler ")
                     DB.exists(keyurlclient, function(err, data) {
+
                         if (data){
+                            console.log("Pooler exit ok")
                             // inc le nb de pooler
                            DB.incr(keyurlclient,function(){});
                            //check si un flux de pooler
-                           DB.get(prefix+listener+":"+clientid+":"+appid+":"+channel,function (err,elt){
-    //                         console.log(elt)
+                           var subpushch = prefix+listener+":"+clientid+":"+appid+":"+channel;
+                           DB.get(subpushch,function (err,elt){
+                            //console.log("JA get "+subpushch)
+                             //console.log(elt)
+                             //console.log(err)
                                if (elt){
                                    console.log("VERSION DU FEEDS")
-                                   socket.emit('message', elt);
+                                   
+                                   if(elt != "1"){
+                                       try{
+
+                                            //var js = JSON.parse(elt)
+
+                                            // TODO Modifier le message
+                                            socket.emit('message', elt);
+                                            console.log("VERSION OKKKK")
+                                       }catch(e){
+
+                                       } 
+                                   }else{
+                                        //throw new Error("Feeds exist but empty "+subpushch)
+                                   }
                                }else{
                                    console.log("PAS DE VERSION DU FEEDS")
                                    // create pooler
-                                   publishp = redis_emmitter.createPublish(admin_channel,"message",m);
+                                   publishp = redis_emmitter.createPublish();
+                                   publishp.publish(admin_channel,"message",m); 
                                }
                                callback(null,"pooler exist")
                            })
                         }else{
+                            console.log("Pooler exit KO")
                            // create pooler log
                             DB.set(keyurlclient, 1, function(elt) {
                                 // send data to admin

@@ -97,7 +97,7 @@
 }*/
 - (void) socketIODidConnect:(SocketIO *)socket{
     NSLog(@"Connected");
-    NSDictionary *dict = @{@"client":@"1", @"key": @"1787db1a41077033b72e3ec9393db4b4baf04f50", @"app":@"2",@"channel":@"adelskott",@"url":@"http://search.twitter.com/search.json?q=sexy&rpp=30&include_entities=true&result_type=recent",@"ttl":@"3"};
+    NSDictionary *dict = @{@"client":@"1", @"key": @"1787db1a41077033b72e3ec9393db4b4baf04f50", @"app":@"2",@"channel":@"adelskott",@"url":@"http://search.twitter.com/search.json?q=sexy&rpp=5&include_entities=true&result_type=recent",@"ttl":@"3"};
     
    [socketIO sendEvent:@"psubscribe" withData:dict];
 }

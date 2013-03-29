@@ -23,7 +23,7 @@ var ssss = function (){
         });
         socket2.on('message', function(data){
             console.log("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-            //console.log(data);
+            console.log(data);
         });
         //key_admin = '7c7b2bfaa4ee4094b390e94c2212aed04326871c'
         var data = {client:1, key: key_admin, app:2,channel:"adelskott",url:"http://search.twitter.com/search.json?q=sexy&rpp=5&include_entities=true&result_type=recent",ttl:10};
@@ -60,10 +60,13 @@ nbinjector =  process.argv[5] || "4";
 nbconcurent =  process.argv[6] || "4";
 
 for (var i = 0; i < parseInt(nbinjector); i++) {
-    for (var j = 0; j < parseInt(nbconcurent); j++) {
-        setTimeout(ssss, 1000);
-        setTimeout(test2, 1000);
-    };
+    setTimeout(function(){
+        for (var j = 0; j < parseInt(nbconcurent); j++) {
+            setTimeout(ssss, 1000);
+            setTimeout(test2, 1000);
+        };
+    },i*1000+1000)
+    
 };
 
 

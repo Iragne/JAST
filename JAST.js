@@ -79,8 +79,8 @@ var start = function(){
     const prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
 
 
-    DB.keys(prefix+'Po*',function(err,elts){
-        console.log("clean pool")
+    DB.keys('*',function(err,elts){
+        console.log("clean redis")
         console.log(elts)
         if(elts)
             for (var i = 0; i < elts.length; i++) {
@@ -88,24 +88,7 @@ var start = function(){
             };
         
     })
-    DB.keys(prefix+'Feed*',function(err,elts){
-        console.log("clean")
-        console.log(elts)
-        if(elts)
-            for (var i = 0; i < elts.length; i++) {
-                DB.del(elts[i])
-            };
-        
-    })
-    DB.keys(prefix+'AppsKey*',function(err,elts){
-        console.log("clean")
-        console.log(elts)
-        if(elts)
-            for (var i = 0; i < elts.length; i++) {
-                DB.del(elts[i])
-            };
-        
-    })
+    
 
     database.Applications.findAll({}).success(function(apps){
         if (apps){

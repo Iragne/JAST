@@ -38,28 +38,8 @@ RedisHooker.prototype.addUse = function(config) {
 	
 	
 	subscribe.on("pmessage", function(pattern, channel, message) {
-		//socket.emit('message', { channel: channel, data:  message });
-		//console.log("=========================");
-		//console.log("===========Message===========");
-		//console.log(pattern);
-		//console.log(channel);
-//		console.log(message);
-/*		var feeds = null;
-
-		try{
-            feeds = JSON.parse(message);
-        }catch(e){
-            console.log("========================= ERROR RECIVE INFO");
-            console.log(e)
-        }
-*/
-            
-		//console.log(message);
-		//console.log("=========================");
-		
+		//console.log(message)
 		RedisEmitter_events.emit(channel,message);
-		
-		// send to dispatcher
 	});
 	console.log("watch========>"+prefix+listener+":*")
 	subscribe.psubscribe(prefix+listener+":*");

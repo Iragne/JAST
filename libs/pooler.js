@@ -37,7 +37,7 @@ var channel_emmit = function (){
             });
             RedisEmitter_events.on('pooler_message',function(data){
                 console.log('pooler_message')
-               // console.log(data)
+//                console.log(data)
                 socket.emit('publish', data,function (){
                 
                }); 
@@ -64,17 +64,22 @@ exports.run = function(conf){
             console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
         });
         socket_listen.on('killpooler',function (datae){
-            console.log("Kill pooler "+datae.channel)
-            RedisEmitter_events.emit(datae.channel,datae)
+            var datakey = JSON.parse(datae)
+            RedisEmitter_events.emit(datakey.data.channel,datakey)
+            console.log("Kill pooler ")
+            console.log(datakey)
         });
         socket_listen.on('message',function (datae){
-            data = null;
+            //console.log(datae)  
+            var data = null;
+            var datakey = null;
             try{
-                data = JSON.parse(datae)
+                datakey = JSON.parse(datae)
+                data = JSON.parse(datakey.data)
             }catch(e){
                 console.log(e)
             }
-            console.log(data)
+            //console.log(data)
             console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
             
             var url = data.url;
@@ -89,10 +94,11 @@ exports.run = function(conf){
             var olddata_json = null;
             var stop = false;
             
-
+            var request = null;
+            var timer = null;
             var getRestData = function (){
                 console.log("getdata "+url)
-                var request = http.get(urlparse.parse(url), function(res){
+                request = http.get(urlparse.parse(url), function(res){
                     var body = ''
                     res.setEncoding('binary');
                     res.on('data', function(chunk){body += chunk;});
@@ -108,26 +114,29 @@ exports.run = function(conf){
                                                                        channel:channel});
                         }
                         if (!stop)
-                            setTimeout(getRestData,ttl*1000);
+                            timer = setTimeout(getRestData,ttl*1000);
                     });
                     
                     res.on("error",function (e) {
                         console.log("ERROR SOCKET");
                         console.log(e);
                         if(!stop)
-                            setTimeout(getRestData,ttl*1000);
+                            timer= setTimeout(getRestData,ttl*1000);
                     });
                 });
                 request.on("error",function (e) {
                     console.log("ERROR SOCKET");
                     console.log(e);
-                    stop = true;
+                    //stop = true;
                 });
             };
             if(!stop)
                 getRestData();
             RedisEmitter_events.on("/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel,function(){
+                console.log("try to kill it")
                 stop = true;
+                request.abort()
+                clearTimeout(timer)
             })
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
