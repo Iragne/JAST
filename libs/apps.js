@@ -4,6 +4,7 @@ var	redis_req = require('redis'),
     applications = require('./controllers/applications.js'),
     channels = require('./controllers/channels.js'),
     users = require('./controllers/users.js'),
+    poolers = require('./controllers/poolers.js'),
     redis = require('redis'),
     config = require("../conf.js");
 
@@ -39,6 +40,6 @@ module.exports.bind = function(app) {
 	
 	applications(app,DB);
 	
-	
+	poolers(app,DB)
 };
 

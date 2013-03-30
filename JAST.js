@@ -79,7 +79,7 @@ var start = function(){
     const prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
 
 
-    DB.keys('*',function(err,elts){
+    DB.keys('/1/*',function(err,elts){
         console.log("clean redis")
         console.log(elts)
         if(elts)

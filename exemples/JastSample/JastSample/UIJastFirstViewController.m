@@ -53,7 +53,7 @@
 }
 -(void)socketconnect{
     socketIO = [[SocketIO alloc] initWithDelegate:self];
-    [socketIO connectToHost:@"localhost" onPort:80 withParams:nil withNamespace:@"/ns"];
+    [socketIO connectToHost:@"jast-io.com" onPort:80 withParams:nil withNamespace:@"/ns"];
     [self refreshbt];
 }
 - (void) socketIODidDisconnect:(SocketIO *)socket disconnectedWithError:(NSError *)error{
@@ -97,7 +97,7 @@
 }*/
 - (void) socketIODidConnect:(SocketIO *)socket{
     NSLog(@"Connected");
-    NSDictionary *dict = @{@"client":@"1", @"key": @"1787db1a41077033b72e3ec9393db4b4baf04f50", @"app":@"2",@"channel":@"adelskott",@"url":@"http://search.twitter.com/search.json?q=sexy&rpp=5&include_entities=true&result_type=recent",@"ttl":@"3"};
+    NSDictionary *dict = @{@"client":@"1", @"key": @"240733b5e2c23ec40aa2bdc799b1c5fceefc38a3", @"app":@"2",@"channel":@"adelskott",@"url":@"http://search.twitter.com/search.json?q=sexy&rpp=5&include_entities=true&result_type=recent",@"ttl":@"3"};
     
    [socketIO sendEvent:@"psubscribe" withData:dict];
 }

@@ -1,12 +1,21 @@
 
 var subscribe = function (elt){
-    var socket = io.connect('http://localhost:4242/ns');
+    var socket = io.connect('http://localhost/ns');
     socket.on('connect', function (data) {
-        console.log(data);
+        //console.log(data);
     });
-    socket.on('message', function (data) {
-        console.log(data);
-        $("#content").append(data);
+    socket.on('message', function (data) { 
+        //console.log(data);
+        var c = JSON.stringify(data)
+        var d = JSON.parse(data)
+        var l = data.length;
+        var unit = "o"
+        if (l/1024 > 1){
+          l = parseInt(l/1024);
+          unit = "Ko"
+        }
+        var div = "<tr><td>"+d.channel+"</td><td>"+l+unit+"</td></tr>";
+        $("#push").append(div);
         $("#content").each( function() 
         {
            // certain browsers have a bug such that scrollHeight is too small

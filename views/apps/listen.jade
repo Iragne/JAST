@@ -1,5 +1,9 @@
 script(src='/socket.io/socket.io.js')
 script(src='/javascripts/listen.js')
 script
-    subscribe(!{JSON.stringify(a)},"#{channel}")
+	subscribe(!{JSON.stringify(a)},"#{channel}")
 #content
+	table(id="push")
+		tr
+			td Channel
+			td Size

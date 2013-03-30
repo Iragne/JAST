@@ -26,7 +26,7 @@ module.exports = function (app,DB){
         });     
         
     });
-    app.get('/admin/apps/channel/:appid', function (req, res) {
+    app.get('/admin/apps/channels/:appid', function (req, res) {
         var appid = req.params.appid.replace(/\W/g, '');
         database.Applications.find(appid).success(function(app){
             key = prefix+listener+":"+app.ClientId+":"+app.id+':'+'*';

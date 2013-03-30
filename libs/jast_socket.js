@@ -206,7 +206,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         	    console.log("url found")
             	// ask for create poolers
             	var keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
-                var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
+                //var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
             	var m = {url: url,
                             ttl: ttl,
                         	clientid: clientid,
@@ -231,7 +231,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         if (data){
                             //console.log("Pooler exit ok")
                             // inc le nb de pooler
-                           DB.incr(keyurlclient,function(){});
+                           //DB.incr(keyurlclient,function(){});
                            //check si un flux de pooler
                            var subpushch = prefix+listener+":"+clientid+":"+appid+":"+channel;
                            DB.get(subpushch,function (err,elt){
@@ -265,14 +265,14 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         }else{
                             //console.log("Pooler exit KO")
                            // create pooler log
-                            DB.set(keyurlclient, 1, function(elt) {
+                            DB.set(keyurlclient, url, function(elt) {
                                 // send data to admin
                                 console.log("push direct redis to "+ admin_channel)
                                 publishp = redis_emmitter.createPublish();
                                 publishp.publish(admin_channel,"message",m); 
-                                DB.set(clientapppooler, 1, function(elt) {
+                                //DB.set(clientapppooler, 1, function(elt) {
                                     callback(null,"pooler create")
-                                }); 
+                                //}); 
                             });
                             // define the pooler id
                             

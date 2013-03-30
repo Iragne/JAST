@@ -25,10 +25,6 @@ module.exports = function (app,DB){
 		
 	});
 	
-	app.get('/admin/poolers/:client', function (req, res) {
-    	var client = req.params.client.replace(/\W/g, '');
-       	res.render('apps/poolers', {flux:null,session:req.session.auth});
-	});
 	
 	app.post('/admin/apps/add', function (req, res) {
         var data = req.body.app;
