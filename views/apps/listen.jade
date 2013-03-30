@@ -2,10 +2,11 @@ script(src='/socket.io/socket.io.js')
 script(src='/javascripts/listen.js')
 script
 	subscribe(!{JSON.stringify(a)},"#{channel}")
-#content
-	table(id="push")
-		thead
-			tr
-				td Channel
-				td Size
-		tbody
+.list
+	#content
+		table(id="push")
+			thead
+				tr
+					td Channel
+					td Size
+			tbody
