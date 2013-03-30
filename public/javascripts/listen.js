@@ -1,6 +1,6 @@
 
 var subscribe = function (elt){
-    var socket = io.connect('http://localhost/ns');
+    var socket = io.connect('http://jast-io.com/ns');
     socket.on('connect', function (data) {
         //console.log(data);
     });
