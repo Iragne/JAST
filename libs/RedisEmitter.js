@@ -36,6 +36,7 @@ module.exports.use = function(config) {
 
 function RedisEmitterSub() {
 	this._event = redish.getEmmiter();
+    this._eventlist = []
 };
 RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     var a = this;
@@ -52,21 +53,26 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
         if(!dd)
         	redisinstance_readwrite.set(channel,1);
     })
-
-	this._event.on(channel,function(datae){
-		try{
-			var data = JSON.parse(datae)
-    		a.callback(data.key,channel,datae)
-		}catch(e){
-			console.log(e)
-		}
-	});
+    var e = {channel:channel,fct:function(datae){
+        try{
+            var data = JSON.parse(datae)
+            a.callback(data.key,channel,datae)
+        }catch(e){
+            console.log(e)
+        }
+    }}
+    this._eventlist.push(e)
+	this._event.on(e.channel,e.fct);
 	// bind to redis automatic because watching Feeds.*
 };
 RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
-    console.log("unsub ====> "+countc);	
+    console.log("unsub ====> "+countc);
+    
+    for (var i = 0; i < this._eventlist.length; i++) {
+        this._event.removeListener(this._eventlist[i].channel,this._eventlist[i].fct)
+    };
     redisinstance_readwrite.decr(countc,function(e){
     	redisinstance_readwrite.get(countc,function(err,e){
     		if (e <= 0){
