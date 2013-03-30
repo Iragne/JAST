@@ -29,6 +29,7 @@ var start = function(){
 
     app.configure(function(){
         app.set('title', 'JAST API');
+        app.use(express.compress());
         app.use(express.logger());
         app.use(express.bodyParser());
         app.use(express.methodOverride());
@@ -38,7 +39,7 @@ var start = function(){
         app.use(express.static(__dirname + '/public'));
         app.set('view engine', 'jade');
         app.set('views', __dirname + '/views');
-        app.set('log level', 1);
+        //app.set('log level', 1);
         if(config.basicAuth)
             app.use(express.basicAuth(config.basicAuth.username, config.basicAuth.password));
         app.use(express.session({
@@ -69,8 +70,12 @@ var start = function(){
     
     
     io = require('socket.io').listen(app);
-    io.set('log level', 1);
+    io.set('log level', 2);
     //io.set('timeout', 0);
+    io.enable('browser client minification');  // send minified client
+    io.enable('browser client etag');          // apply etag caching logic based on version number
+    io.enable('browser client gzip');          // gzip the file
+
     io.configure( function() {
     //    io.set('close timeout', 60*60*24); // 24h time out
     });
