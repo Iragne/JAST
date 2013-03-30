@@ -37,7 +37,7 @@ var channel_emmit = function (){
             });
             RedisEmitter_events.on('pooler_message',function(data){
                 console.log('pooler_message')
-//                console.log(data)
+                //console.log(data)
                 socket.emit('publish', data,function (){
                 
                }); 
@@ -66,8 +66,8 @@ exports.run = function(conf){
         socket_listen.on('killpooler',function (datae){
             var datakey = JSON.parse(datae)
             RedisEmitter_events.emit(datakey.data.channel,datakey)
-            console.log("Kill pooler ")
-            console.log(datakey)
+            //console.log("Kill pooler ")
+            //console.log(datakey)
         });
         socket_listen.on('message',function (datae){
             //console.log(datae)  
@@ -107,6 +107,13 @@ exports.run = function(conf){
                             return;
                         if (body != olddata || olddata == null){
                             olddata = body;
+                            try{
+                                body = JSON.parse(body)
+                            }catch (e){
+                                console.log("Pas json")
+                                console.log(e)
+                            }
+                            
                             RedisEmitter_events.emit('pooler_message',{client:clientid,
                                                                        key: keysecret,
                                                                        app:appid, 
@@ -132,12 +139,15 @@ exports.run = function(conf){
             };
             if(!stop)
                 getRestData();
-            RedisEmitter_events.on("/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel,function(){
+            var event_ch = "/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel;
+            function killreq(){
                 console.log("try to kill it")
                 stop = true;
                 request.abort()
                 clearTimeout(timer)
-            })
+                RedisEmitter_events.removeListener(event_ch,killreq)
+            }
+            RedisEmitter_events.on(event_ch,killreq)
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
         socket_listen.emit('psubscribe', data,function (e){

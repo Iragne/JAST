@@ -52,9 +52,9 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         var channels = [];
 
     	socket.on('disconnect',function (){
-        	console.log("disconnect JAAJA ***********");
+        	//console.log("disconnect JAAJA ***********");
             if (subscribe && channels.length){
-                console.log(channels)
+                //console.log(channels)
                 for (var i = 0; i < channels.length; i++) {
                     var channel = channels[i].channel;
                     subscribe.unsubscribe(channel,prefix,function(){
@@ -65,7 +65,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         //clientapppooler.replace(clientapppooler,)prefix+listener+":"+clientid+':'+appid+':'
                         //console.log("kill JAJAJAJJ =>  "+clientapppooler)
                         DB.del(clientapppooler)
-                        console.log("kill Channel =>  "+channel)
+                        //console.log("kill Channel =>  "+channel)
                         DB.get(clientapppooler,function(err,e){
                             // keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                             var m = {
@@ -218,18 +218,18 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                            
                 var m = JSON.stringify(m)
 
-                console.log("Mutex")
+                //console.log("Mutex")
                 //return;
                 mutex.isolateCondRetry(keyurlclient, 100000000, function check(callback) {
-                    console.log("GOTO MUTEX")
+                    //console.log("GOTO MUTEX")
                     callback(null, mutex.continue);
                 }, function isolated(callback){
                     // check si pooler 
-                    console.log("check si pooler ")
+                    //console.log("check si pooler ")
                     DB.exists(keyurlclient, function(err, data) {
 
                         if (data){
-                            console.log("Pooler exit ok")
+                            //console.log("Pooler exit ok")
                             // inc le nb de pooler
                            DB.incr(keyurlclient,function(){});
                            //check si un flux de pooler
@@ -239,16 +239,15 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                              //console.log(elt)
                              //console.log(err)
                                if (elt){
-                                   console.log("VERSION DU FEEDS")
+                                   //console.log("VERSION DU FEEDS")
                                    
                                    if(elt != "1"){
                                        try{
 
                                             //var js = JSON.parse(elt)
 
-                                            // TODO Modifier le message
                                             socket.emit('message', elt);
-                                            console.log("VERSION OKKKK")
+                                            //console.log("VERSION OKKKK")
                                        }catch(e){
 
                                        } 
@@ -256,7 +255,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                         //throw new Error("Feeds exist but empty "+subpushch)
                                    }
                                }else{
-                                   console.log("PAS DE VERSION DU FEEDS")
+                                   //console.log("PAS DE VERSION DU FEEDS")
                                    // create pooler
                                    publishp = redis_emmitter.createPublish();
                                    publishp.publish(admin_channel,"message",m); 
@@ -264,7 +263,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                callback(null,"pooler exist")
                            })
                         }else{
-                            console.log("Pooler exit KO")
+                            //console.log("Pooler exit KO")
                            // create pooler log
                             DB.set(keyurlclient, 1, function(elt) {
                                 // send data to admin
@@ -283,7 +282,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                     //console.log(m)
                     
                 }, function after(err, result) {
-                    console.log(result); 
+                    //console.log(result); 
                 })
 /*
             	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {

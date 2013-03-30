@@ -88,7 +88,7 @@
     NSData *utf8Data = [str dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *json = [SocketIOJSONSerialization objectFromJSONData:utf8Data error:nil];
 
-    [self renderdata:json];
+    [self renderdata:json[@"data"]];
     
     
 }
