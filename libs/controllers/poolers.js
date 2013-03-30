@@ -33,7 +33,10 @@ module.exports = function (app,DB){
                         if (i == datas.length)
                            res.render('poolers/list', {flux:list,session:req.session.auth}); 
                     });
-                };
+
+                }
+                if (0 == datas.length)
+                    res.render('poolers/list', {flux:list,session:req.session.auth}); 
             }
                 
             
