@@ -28,7 +28,12 @@
       "version": "1",
       "namespace": "jast",
       "namesapcelistener": "Feeds",
-      "secretkey": "jast be fast"
+      "secretkey": "jast be fast",
+      "log":{
+        "colors":true,
+        "enabled":true,
+        "levellog":3
+      }
     }
   }
 }

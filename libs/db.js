@@ -1,13 +1,20 @@
 var Sequelize = require('sequelize'),
     crypto = require('crypto'),
-    config = require("../conf.js");
+    config = require("../conf.js"),
+    env = require("./env.js");
+
+
 
 var run = function (next){
+    //env.log.info("sqfsfsdfqsdf====")
+    //env.log.info.apply(this,["fdff"])
     var  sequelize = new Sequelize(config.mysql.database, config.mysql.username, config.mysql.password, {
         host: config.mysql.host,
         port: config.mysql.port,
         protocol: 'tcp',
-        logging: console.log,
+        logging:function(){
+            env.log.debug.apply(env.log,arguments)
+        },
         maxConcurrentQueries: 100,
         dialect: 'mysql',
         define: {
@@ -38,7 +45,7 @@ var run = function (next){
         Users.sync().success(function() {
             Applications.sync().success(function() {
                 // woot woot
-                console.log("******************************************************************************");
+                env.log.debug("******************************************************************************");
                 try{
                   var defaultclient = Clients.build({
                         id: 1,
@@ -75,11 +82,9 @@ var run = function (next){
                     }).error(function(){});
                     
                     next();
-                    console.log("******************************************************************************");
                 }catch(e){
-                console.log(e)
-                    console.log("******************************************************************************");
-                    console.log(e)
+                    env.log.error("******************************************************************************");
+                    env.log.error(e)
                 }        
             }).error(function(error) {
             // whooops

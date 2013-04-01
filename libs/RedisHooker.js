@@ -1,5 +1,6 @@
 var util = require('util'),
 	redis = require('redis'),
+	env = require("./env.js")
 	EventEmitter = require('events').EventEmitter;
     //redis = require('redis');
 
@@ -7,8 +8,8 @@ var util = require('util'),
 const RedisEmitter_events = new EventEmitter();
 RedisEmitter_events.setMaxListeners(10000000)
 RedisEmitter_events.on('error',function(e){
-	console.log("RedisEmitter_events")
-	console.log(e)
+	env.log.error("RedisEmitter_events")
+	env.log.error(e)
 })
 var RedisHooker = module.exports = function() {
 	return this;
@@ -22,11 +23,13 @@ RedisHooker.prototype.addUse = function(config) {
 
 	const subscribe = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
 	subscribe.on("error", function (err) {
-        console.log("RedisEmitter_events " + err);
+        env.log.error("RedisEmitter_events ");
+        env.log.error(err)
     });
     if (config.redis.password){
         subscribe.auth(config.redis.password,function(e){
-
+        	if (e)
+        		env.log.error(e)
         });
     }
 
@@ -38,10 +41,9 @@ RedisHooker.prototype.addUse = function(config) {
 	
 	
 	subscribe.on("pmessage", function(pattern, channel, message) {
-		//console.log(message)
 		RedisEmitter_events.emit(channel,message);
 	});
-	console.log("watch========>"+prefix+listener+":*")
+	env.log.debug("watch========>"+prefix+listener+":*")
 	subscribe.psubscribe(prefix+listener+":*");
 	  
 

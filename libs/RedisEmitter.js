@@ -1,6 +1,7 @@
 var util = require('util'),
     redis = require('redis'),
     config = require("../conf.js"),
+    env = require("./env.js"),
     RedisHooker = require('./RedisHooker.js');
    
 
@@ -11,7 +12,8 @@ module.exports.use = function(config) {
 	redish.use(config);
 	redisinstance = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     redisinstance.on("error", function (err) {
-        console.log("RedisEmitterSub " + err);
+        env.log.error("RedisEmitterSub ");
+        env.log.error(err)
     });
     if (config.redis.password){
         redisinstance.auth(config.redis.password,function(e){
@@ -21,7 +23,8 @@ module.exports.use = function(config) {
     }
     redisinstance_readwrite = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     redisinstance_readwrite.on("error", function (err) {
-        console.log("RedisEmitterSub " + err);
+        env.log.error("RedisEmitterSub ");
+        env.log.error(error)
     });
     if (config.redis.password){
         redisinstance_readwrite.auth(config.redis.password,function(e){
@@ -30,7 +33,7 @@ module.exports.use = function(config) {
         });
     }
 
-    console.log("create instance")
+    env.log.debug("create instance")
 	
 };
 
@@ -58,7 +61,7 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
             var data = JSON.parse(datae)
             a.callback(data.key,channel,datae)
         }catch(e){
-            console.log(e)
+            env.log.error(e)
         }
     }}
     this._eventlist.push(e)
@@ -68,7 +71,7 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
 RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
-    console.log("unsub ====> "+countc);
+    env.log.debug("unsub ====> "+countc);
     
     for (var i = 0; i < this._eventlist.length; i++) {
         this._event.removeListener(this._eventlist[i].channel,this._eventlist[i].fct)
@@ -89,7 +92,7 @@ RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
 };
 
 RedisEmitterSub.prototype.callback = function(data){
-    	console.log("Not not implemented")
+    	env.log.error("Not not implemented")
 }
 
 RedisEmitterSub.prototype.on = function(event, callback) {
@@ -111,7 +114,7 @@ function RedisEmitterPub() {
 };
 RedisEmitterPub.prototype.publish = function(channel,key, data) {
     try {
-    	console.log("push data===========>")
+    	env.log.info("push data===========>")
         var cc = channel.split(':');
         var ch = cc.shift();
         ch = cc.shift();
@@ -123,8 +126,8 @@ RedisEmitterPub.prototype.publish = function(channel,key, data) {
     	//console.log(d)
     	redisinstance_readwrite.set(channel, d,function(err,e){
             if(err){
-                console.log("RedisEmitterPub.prototype.set errr")
-                console.log(err)
+                env.log.error("RedisEmitterPub.prototype.set errr")
+                env.log.error(err)
             }
             // console.log(channel)
             // console.log(e)
@@ -134,8 +137,8 @@ RedisEmitterPub.prototype.publish = function(channel,key, data) {
         //console.log(d)
         redisinstance.publish(channel, d);
     }catch(e){
-        console.log("RedisEmitterPub.prototype.publish errr")
-        console.log(e)
+        env.log.error("RedisEmitterPub.prototype.publish errr")
+        env.log.error(e)
     }	
 };
 module.exports.createPublish = function(){ 

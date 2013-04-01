@@ -1,5 +1,5 @@
 var config = require("./conf.js"),
-	logger = require("./libs/logger.js").setup(config),
+    env = require("./libs/env.js")
 	redis_emmitter = require("./libs/RedisEmitter.js"),
 	express = require('express'),
 	app = express.createServer(),
@@ -14,7 +14,8 @@ var config = require("./conf.js"),
 
 var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
 DB.on("error", function (err) {
-    console.log("DB Error " + err);
+    env.log.error("DB Error ");
+    env.log.error(err)
 });
 
 if (config.redis.password){
@@ -85,8 +86,8 @@ var start = function(){
 
 
     DB.keys('/1/*',function(err,elts){
-        console.log("clean redis")
-        console.log(elts)
+        env.log.info("clean redis")
+        env.log.debug(elts)
         if(elts)
             for (var i = 0; i < elts.length; i++) {
                 DB.del(elts[i])

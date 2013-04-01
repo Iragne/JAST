@@ -6,12 +6,16 @@ var	redis_req = require('redis'),
     users = require('./controllers/users.js'),
     poolers = require('./controllers/poolers.js'),
     redis = require('redis'),
-    config = require("../conf.js");
+    config = require("../conf.js"),
+    env = require("./env.js");
 
 module.exports.bind = function(app) {
     var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     DB.on("error", function (err) {
-        console.log("DB Error " + err);
+        if (err){
+            env.log.error("DB Error ");
+            env.log.error(err)
+        }
     });
     if (config.redis.password){
         DB.auth(config.redis.password,function(e){
