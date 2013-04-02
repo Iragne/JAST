@@ -6,14 +6,14 @@ var Sequelize = require('sequelize'),
 
 
 var run = function (next){
-    //env.log.info("sqfsfsdfqsdf====")
-    //env.log.info.apply(this,["fdff"])
     var  sequelize = new Sequelize(config.mysql.database, config.mysql.username, config.mysql.password, {
         host: config.mysql.host,
         port: config.mysql.port,
         protocol: 'tcp',
         logging:function(){
-            env.log.debug.apply(env.log,arguments)
+            var ar = ["[SQL]     "];
+            var ar = ar.concat([arguments['0']])
+            env.log.debug.apply(env.log,ar)
         },
         maxConcurrentQueries: 100,
         dialect: 'mysql',
