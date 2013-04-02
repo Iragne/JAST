@@ -27,7 +27,7 @@ module.exports.bind = function(app) {
             if (!req.session.auth || !req.session.auth.client)
                 return res.redirect('/admin/auth/login');
         }
-		if (req.path.indexOf("/admin/auth") > -1 &&  req.session.auth && req.session.auth.client){
+		if (req.path != "/admin/auth/logout"  && req.path.indexOf("/admin/auth") > -1 &&  req.session.auth && req.session.auth.client){
         	return res.redirect('/admin/apps/'+req.session.auth.client);
     	}
         next();
