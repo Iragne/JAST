@@ -22,7 +22,6 @@ module.exports = function (app,DB){
     	database.Applications.find(appid).success(function(app){
         	res.render('apps/add', {flux:app,session:req.session.auth});
     	});
-		
 	});
 	
 	

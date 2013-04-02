@@ -23,8 +23,6 @@ var run = function (next){
             syncOnAssociation: true,
             charset: 'utf8',
             collate: 'utf8_general_ci',
-    //        classMethods: {method1: function() {}},
-    //        instanceMethods: {method2: function() {}},
             timestamps: true
         },
         sync: { force: false },
@@ -65,6 +63,7 @@ var run = function (next){
                         username: 'admin',
                         password: crypto.createHash('sha1').update('password').digest('hex'),
                         email: 'contact@gmail.com',
+                        active: 1,
                         ClientId: 1
                     }).save().success(function(e){}).error(function(){});
                     

@@ -1,0 +1,35 @@
+.list
+  table(style='width:100%')
+    thead
+      tr
+        th id
+        th Login
+        th Email
+        th Status
+        th
+            div(align='right')
+                a(href='/admin/users/add') Add
+                
+        
+    tbody
+      each user, i in flux
+        tr
+            td 
+                a(href='/admin/users/details/' + user.id) #{user.id} 
+            td 
+                a(href='/admin/users/details/' + user.id) #{user.username} 
+            td
+                #{user.email}
+            td
+                #{user.active != 0 ? "Enable" : "Disable"}
+            
+            td
+                span 
+                    a(href='/admin/users/details/' + user.id) Edit
+                span  
+                    &nbsp;
+                span 
+                    - if (user.id != 1)
+                        a(href='/admin/users/del/'+user.id) del
+
+                
