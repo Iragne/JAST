@@ -3,6 +3,7 @@ var http = require("http"),
     EventEmitter = require('events').EventEmitter,
     config = require("../conf.js"),
     crypto = require('crypto'),
+    env = require("./env.js"),
     urlparse = require('url');
 
 
@@ -15,29 +16,28 @@ jsondiffpatch.config.textDiffMinLength = 5;
 RedisEmitter_events.setMaxListeners(10000000)
 
 RedisEmitter_events.on("error",function(e){
-    console.log("EvEmit");
-    console.log(e);
+    env.log.debug("EvEmit");
+    env.log.debug(e);
 }) 
 
 var socket = null;
 var channel_emmit = function (){
         
         var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket
-        console.log("Channel admin Listen "+url)
+        env.log.debug("Channel admin Listen "+url)
         if (socket == null)
             socket = require('socket.io-client').connect(url,{'force new connection': true});
         socket.on('error', function(e){
-            console.log("error admin channel")
-            console.log(e)
+            env.log.error("error admin channel")
+            env.log.error(e)
         });
         socket.on('connect', function () {
-            console.log("admin channel connected");
+            env.log.debug("admin channel connected");
             socket.on('disconnect', function(){
-                console.log("disconenct admin channel")
+                env.log.debug("disconenct admin channel")
             });
             RedisEmitter_events.on('pooler_message',function(data){
-                console.log('pooler_message')
-                //console.log(data)
+                env.log.debug('pooler_message')
                 socket.emit('publish', data,function (){
                 
                }); 
@@ -55,32 +55,29 @@ exports.run = function(conf){
     var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket;
     var socket_listen = require('socket.io-client').connect(url,{'force new connection': true});
     socket_listen.on('error', function(e){
-            console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
-            console.log(e)
+            env.log.error("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
+            env.log.error(e)
     });
     socket_listen.on('connect', function () {
-        console.log("Listen connected")
+        env.log.info("Listen connected")
         socket_listen.on('disconnect', function(e){
-            console.log("MY FINMY FINMY FINMY FINMY FINMY FINMY FIN")
+            env.log.debug("Disconenct Pooler")
         });
         socket_listen.on('killpooler',function (datae){
             var datakey = JSON.parse(datae)
             RedisEmitter_events.emit(datakey.data.channel,datakey)
-            //console.log("Kill pooler ")
-            //console.log(datakey)
         });
-        socket_listen.on('message',function (datae){
-            //console.log(datae)  
+        socket_listen.on('message',function (datae){ 
             var data = null;
             var datakey = null;
             try{
                 datakey = JSON.parse(datae)
                 data = JSON.parse(datakey.data)
             }catch(e){
-                console.log(e)
+                env.log.error("Can't convert to JSON")
+                env.log.error(e)
             }
-            //console.log(data)
-            console.log("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
+            env.log.info("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
             
             var url = data.url;
             var ttl = data.ttl;
@@ -97,7 +94,7 @@ exports.run = function(conf){
             var request = null;
             var timer = null;
             var getRestData = function (){
-                console.log("getdata "+url)
+                env.log.info("getdata "+url)
                 request = http.get(urlparse.parse(url), function(res){
                     var body = ''
                     res.setEncoding('binary');
@@ -110,8 +107,8 @@ exports.run = function(conf){
                             try{
                                 body = JSON.parse(body)
                             }catch (e){
-                                console.log("Pas json")
-                                console.log(e)
+                                env.log.error("Pas json")
+                                env.log.error(e)
                             }
                             
                             RedisEmitter_events.emit('pooler_message',{client:clientid,
@@ -125,15 +122,15 @@ exports.run = function(conf){
                     });
                     
                     res.on("error",function (e) {
-                        console.log("ERROR SOCKET");
-                        console.log(e);
+                        env.log.error("ERROR SOCKET");
+                        env.log.error(e);
                         if(!stop)
                             timer= setTimeout(getRestData,ttl*1000);
                     });
                 });
                 request.on("error",function (e) {
-                    console.log("ERROR SOCKET");
-                    console.log(e);
+                    env.log.error("ERROR SOCKET");
+                    env.log.error(e);
                     //stop = true;
                 });
             };
@@ -141,7 +138,7 @@ exports.run = function(conf){
                 getRestData();
             var event_ch = "/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel;
             function killreq(){
-                console.log("try to kill it")
+                env.log.info("try to kill it")
                 stop = true;
                 request.abort()
                 clearTimeout(timer)
@@ -151,7 +148,7 @@ exports.run = function(conf){
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
         socket_listen.emit('psubscribe', data,function (e){
-            console.log(e)
+            env.log.debug(e)
         });
     });
 }

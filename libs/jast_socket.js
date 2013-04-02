@@ -1,18 +1,20 @@
 var Mutex = require('mutex'),
     crypto = require('crypto'),
     redis = require('redis'),
+    env = require("./env.js"),
     config = require("../conf.js");
 
 
 var redis_mutex = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
 redis_mutex.on("error", function (err) {
-    console.log("redis_mutex " + err);
+    env.log.error("FILE:jast_socket.js","redis_mutex " + err);
 });
 if (config.redis.password){
     redis_mutex.auth(config.redis.password,function(e){
-        console.log(e)
-        if (e)
-        throw e;
+        if (e){
+            env.log.error(e)
+            throw e;
+        }
     });
 }
 var mutex = new Mutex({redis:redis_mutex,pass:config.redis.password});
@@ -34,12 +36,11 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
     const prefix = "/"+version+"/"+namespace+"/";
     const admin_channel = prefix+listener+":1:1:admin_channel";
 
-    
+        
 
-    console.log("runsio")
+    env.log.debug("FILE:jast_socket.js","JAST SOCKET IO")
     ns.on('connection', function(socket) {
-        console.log("connection recived");
-        //console.log(socket)
+        env.log.debug("FILE:jast_socket.js","connection recived ip:"+socket.handshake.address.address);
     	var subscribe = null;
     	var publish = null;
         
@@ -52,9 +53,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         var channels = [];
 
     	socket.on('disconnect',function (){
-        	//console.log("disconnect JAAJA ***********");
             if (subscribe && channels.length){
-                //console.log(channels)
                 for (var i = 0; i < channels.length; i++) {
                     var channel = channels[i].channel;
                     subscribe.unsubscribe(channel,prefix,function(){
@@ -63,9 +62,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         var clientapppooler = channel;
                         clientapppooler = clientapppooler.replace(prefix+listener,prefix+"Poolers")
                         //clientapppooler.replace(clientapppooler,)prefix+listener+":"+clientid+':'+appid+':'
-                        //console.log("kill JAJAJAJJ =>  "+clientapppooler)
                         DB.del(clientapppooler)
-                        //console.log("kill Channel =>  "+channel)
                         DB.get(clientapppooler,function(err,e){
                             // keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                             var m = {
@@ -83,8 +80,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
     	socket.on('publish', function(data,fct) {
             if (!checkdata(socket,data,clientid,appkey))
                 return;
-        	console.log("publish")
-        	//console.log(data)
+        	env.log.debug("FILE:jast_socket.js","publish "+ socket.handshake.address.address)
             if(!appkey)
         	   appkey = data.key;
         	if (!clientid)
@@ -93,7 +89,6 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         	   appid = data.app;
         	
             var channel = data.channel;
-//        	var ch = clientid+":"+appid+":"+channel;
             var ch = prefix+listener+":"+clientid+":"+appid+":"+channel;
             var AppsKey = clientid+":"+appid+":"+appkey;
         	//check clients and key
@@ -104,9 +99,8 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         publish = redis_emmitter.createPublish()
                     }
                     publish.publish(ch, "message",data.message);
-//                        console.log("=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         	   }else{
-                    console.log("No key for the client found: "+clientid+":"+appkey);
+                    env.log.error("FILE:jast_socket.js","No key for the client found: "+clientid+":"+appkey);
                     // close all
                 }
                 
@@ -118,7 +112,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
 
             if (!checkdata(socket,data,clientid,appkey))
                 return;
-            
+            env.log.debug("FILE:jast_socket.js","unsubscribe " + socket.handshake.address.address)
             var url = data.url;
             var keyurlclient = null;
             if (url){
@@ -150,8 +144,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
     	socket.on('psubscribe', function(datae) {
             if (!checkdata(socket,datae,clientid,appkey))
                 return;
-    	    console.log('psubscribe');
-    	    //console.log(datae);
+    	    env.log.debug("FILE:jast_socket.js",'psubscribe '+ socket.handshake.address.address);
 
             if(!appkey)
                appkey = datae.key;
@@ -172,38 +165,31 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         	if (datae.channel)
                 channel = datae.channel;
 
-        	console.log("Subscribe to c:"+channel+" a:"+appid+" cl:"+clientid);
+        	env.log.info("FILE:jast_socket.js","Subscribe to c:"+channel+" a:"+appid+" cl:"+clientid);
             
         	var ch = prefix+listener+":"+clientid+":"+appid+":"+channel;
         	
             var clientAndKey = clientid+":"+appid+":"+appkey;
             
-//            console.log("--------------------------------------------=====dd");
             DB.sismember(prefix+'AppsKey', clientAndKey, function(err, data) {
             	if (data){
             	    if (subscribe == null){
-            	        console.log("create sub")
+            	        env.log.debug("FILE:jast_socket.js","create sub on channel: "+channel)
                 	    subscribe =redis_emmitter.createSubscribe(ch)
             	    }
-                    //console.log(ch)
                     channels.push({channel:ch})
                 	
                 	subscribe.on("pmessage", function(key,channel,pmessage) {
-//                            console.log("sendmessage")
                     		socket.emit(key, pmessage);
                     });
                     subscribe.subscribe(ch,prefix);
-                    //console.log("qsDQUDFYGIUQohiofhuisqgfhugiuqsgfugsduigqiusdfi")
             	}else{
-                    console.log("No key for the client found here : " + clientAndKey + " channel send " + channel);
+                    env.log.error("FILE:jast_socket.js","No key for the client found here : " + clientAndKey + " channel send " + channel);
                     // close all
                 }
         	});
-            
-            
-        	
         	if (url){
-        	    console.log("url found")
+        	    env.log.debug("FILE:jast_socket.js","URL found :"+url)
             	// ask for create poolers
             	var keyurlclient = prefix+"Poolers:"+clientid+':'+appid+':'+crypto.createHash('sha1').update(url).digest('hex');
                 //var clientapppooler = prefix+"Poolers:"+clientid+':'+appid+':'+channel;
@@ -218,56 +204,37 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                            
                 var m = JSON.stringify(m)
 
-                //console.log("Mutex")
-                //return;
                 mutex.isolateCondRetry(keyurlclient, 100000000, function check(callback) {
-                    //console.log("GOTO MUTEX")
                     callback(null, mutex.continue);
                 }, function isolated(callback){
-                    // check si pooler 
-                    //console.log("check si pooler ")
                     DB.exists(keyurlclient, function(err, data) {
-
                         if (data){
-                            //console.log("Pooler exit ok")
                             // inc le nb de pooler
                            //DB.incr(keyurlclient,function(){});
                            //check si un flux de pooler
                            var subpushch = prefix+listener+":"+clientid+":"+appid+":"+channel;
                            DB.get(subpushch,function (err,elt){
-                            //console.log("JA get "+subpushch)
-                             //console.log(elt)
-                             //console.log(err)
                                if (elt){
-                                   //console.log("VERSION DU FEEDS")
-                                   
                                    if(elt != "1"){
                                        try{
-
-                                            //var js = JSON.parse(elt)
-
                                             socket.emit('message', elt);
-                                            //console.log("VERSION OKKKK")
                                        }catch(e){
 
                                        } 
                                    }else{
-                                        //throw new Error("Feeds exist but empty "+subpushch)
+                                        env.log.debug("FILE:jast_socket.js","Feeds exist but empty "+subpushch)
                                    }
                                }else{
-                                   //console.log("PAS DE VERSION DU FEEDS")
-                                   // create pooler
                                    publishp = redis_emmitter.createPublish();
                                    publishp.publish(admin_channel,"message",m); 
                                }
                                callback(null,"pooler exist")
                            })
                         }else{
-                            //console.log("Pooler exit KO")
                            // create pooler log
                             DB.set(keyurlclient, url, function(elt) {
                                 // send data to admin
-                                console.log("push direct redis to "+ admin_channel)
+                                env.log.debug("FILE:jast_socket.js","push direct redis to "+ admin_channel)
                                 publishp = redis_emmitter.createPublish();
                                 publishp.publish(admin_channel,"message",m); 
                                 //DB.set(clientapppooler, 1, function(elt) {
@@ -275,39 +242,12 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                 //}); 
                             });
                             // define the pooler id
-                            
                         }
-                        //console.log(m)
                     })
-                    //console.log(m)
-                    
                 }, function after(err, result) {
-                    //console.log(result); 
+
                 })
-/*
-            	DB.sismember('Poolers', client+':'+keyurl, function(err, data) {
-                	if (data){
-//                	   console.log("/"+version+"/Feeds:"+client+":"+app+":"+channel)
-                	   DB.get("/"+version+"/Feeds:"+client+":"+app+":"+channel,function (err,elt){
-//                	       console.log(elt)
-                	       if (elt){
-                	           console.log("VERSION DU FEEDS")
-                	           socket.emit('message', elt);
-                	       }else{
-                    	       console.log("PAS DE VERSION DU FEEDS")
-                    	       publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
-                	       }
-                	   })
-                	}else{
-                    	DB.sadd('Poolers', client+':'+keyurl, function(elt) {
-                        	
-                    	})
-                        publishp = redis_emmitter.createPublish("/"+version+"/Feeds:1:1:admin_channel",m);
-                	}
 
-
-
-            	});*/
         	}
         	
         });

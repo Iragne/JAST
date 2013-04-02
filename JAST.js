@@ -60,7 +60,7 @@ var start = function(){
          });
         app.use(app.router);
     
-        console.log("fin Config apps")
+        env.log.info("JAST.js","fin Config apps")
     })
     app.use(express.compress());
     app.listen(config.express.port);
