@@ -156,6 +156,8 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
         	var url = datae.url;
         	var ttl = datae.ttl;
             var keyurlclient = null;
+            var feed = datae.feed || 0;
+
             if (url){
                 urlk = crypto.createHash('sha1').update(url).digest('hex');
                 keyurlclient = "Poolers:"+clientid+':'+urlk;
@@ -166,9 +168,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                 channel = datae.channel;
 
         	env.log.info("FILE:jast_socket.js","Subscribe to c:"+channel+" a:"+appid+" cl:"+clientid);
-            
         	var ch = prefix+listener+":"+clientid+":"+appid+":"+channel;
-        	
             var clientAndKey = clientid+":"+appid+":"+appkey;
             
             DB.sismember(prefix+'AppsKey', clientAndKey, function(err, data) {
@@ -182,7 +182,20 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                 	subscribe.on("pmessage", function(key,channel,pmessage) {
                     		socket.emit(key, pmessage);
                     });
+
+
                     subscribe.subscribe(ch,prefix);
+                    if (feed)
+                        DB.get(ch,function (err,elt){
+                           if (elt && elt != "1"){
+                               try{
+                                    socket.emit('message', elt);
+                               }catch(e){
+
+                               } 
+                           }
+                        })
+
             	}else{
                     env.log.error("FILE:jast_socket.js","No key for the client found here : " + clientAndKey + " channel send " + channel);
                     // close all
