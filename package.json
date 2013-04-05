@@ -1,5 +1,5 @@
 {
-  "name": "REST-WS-JAI",
+  "name": "JAST",
   "version": "0.0.1",
   "dependencies": {
     "express": "2.5.8",

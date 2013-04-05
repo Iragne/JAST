@@ -24,7 +24,7 @@ module.exports.bind = function(app) {
     }
 	app.get("/*", function(req, res, next){
         if(typeof req.cookies['connect.sid'] !== 'undefined' && req.path.indexOf("/admin/auth") == -1){
-            if (!req.session.auth || !req.session.auth.client)
+            if (!req.session.auth || req.session.auth.client != undefined)
                 return res.redirect('/admin/auth/login');
         }
 		if (req.path != "/admin/auth/logout"  && req.path.indexOf("/admin/auth") > -1 &&  req.session.auth && req.session.auth.client){
