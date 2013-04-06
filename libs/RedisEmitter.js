@@ -45,6 +45,7 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
     var ch = channel;
+    var channelclean = channel.replace(prefix,'');
 //    console.log("sub count ====> "+channel);
     redisinstance_readwrite.exists(countc,function(err,e){
     	if (e)
@@ -59,7 +60,7 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     var e = {channel:channel,fct:function(datae){
         try{
             var data = JSON.parse(datae)
-            a.callback(data.key,channel,datae)
+            a.callback(data.key,channelclean,datae)
         }catch(e){
             env.log.error(e)
         }
@@ -112,16 +113,14 @@ module.exports.createSubscribe = function(){
 function RedisEmitterPub() {
 	
 };
-RedisEmitterPub.prototype.publish = function(channel,key, data) {
+RedisEmitterPub.prototype.publish = function(channel,key,channelclean, data) {
     try {
     	env.log.info("push data===========>")
-        var cc = channel.split(':');
-        var ch = cc.shift();
-        ch = cc.shift();
-        ch = cc.shift();
-        ch = cc.shift();
+        
+        
+        
         //console.log(ch)
-    	var a = {key:key,channel:channel,data:data}
+    	var a = {key:key,channel:channelclean,data:data}
     	var d = JSON.stringify(a);
     	//console.log(d)
     	redisinstance_readwrite.set(channel, d,function(err,e){

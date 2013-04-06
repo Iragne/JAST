@@ -23,8 +23,7 @@ module.exports.bind = function(app) {
         });
     }
 	app.get("/*", function(req, res, next){
-        if(typeof req.cookies['connect.sid'] !== 'undefined' && req.path.indexOf("/admin/auth") == -1){
-            if (!req.session.auth || req.session.auth.client != undefined)
+        if((typeof req.cookies['connect.sid'] === 'undefined' || !req.session.auth || req.session.auth.client == undefined) && req.path.indexOf("/admin/auth") == -1){
                 return res.redirect('/admin/auth/login');
         }
 		if (req.path != "/admin/auth/logout"  && req.path.indexOf("/admin/auth") > -1 &&  req.session.auth && req.session.auth.client){

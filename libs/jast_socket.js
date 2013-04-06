@@ -70,7 +70,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                 appid:appid,
                                 channel:channel
                             };
-                            redis_emmitter.createPublish().publish(admin_channel,"killpooler",m);
+                            redis_emmitter.createPublish().publish(admin_channel,"killpooler",channel,m);
 
                         })
                     });
@@ -98,7 +98,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                     if (publish == null){
                         publish = redis_emmitter.createPublish()
                     }
-                    publish.publish(ch, "message",data.message);
+                    publish.publish(ch, "message",channel,data.message);
         	   }else{
                     env.log.error("FILE:jast_socket.js","No key for the client found: "+clientid+":"+appkey);
                     // close all
@@ -136,7 +136,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         appid:appid,
                         channel:channel
                     };
-                    redis_emmitter.createPublish().publish(admin_channel,"killpooler",m);
+                    redis_emmitter.createPublish().publish(admin_channel,"killpooler",channel,m);
                 })
             });
         });
@@ -180,7 +180,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
             	    }
                     channels.push({channel:ch})
                 	
-                	subscribe.on("pmessage", function(key,channel,pmessage) {
+                	subscribe.on("pmessage", function(key,channelclean,pmessage) {
                     		socket.emit(key, pmessage);
                     });
 
@@ -240,7 +240,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                    }
                                }else{
                                    publishp = redis_emmitter.createPublish();
-                                   publishp.publish(admin_channel,"message",m); 
+                                   publishp.publish(admin_channel,"message",channel,m); 
                                }
                                callback(null,"pooler exist")
                            })
@@ -250,7 +250,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                 // send data to admin
                                 env.log.debug("FILE:jast_socket.js","push direct redis to "+ admin_channel)
                                 publishp = redis_emmitter.createPublish();
-                                publishp.publish(admin_channel,"message",m); 
+                                publishp.publish(admin_channel,"message",channel,m); 
                                 //DB.set(clientapppooler, 1, function(elt) {
                                     callback(null,"pooler create")
                                 //}); 
