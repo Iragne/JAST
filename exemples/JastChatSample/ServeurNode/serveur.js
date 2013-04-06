@@ -30,11 +30,13 @@ app.listen(8080);
 io = require('socket.io').listen(app);
 	
 	
-var listPerson = ['admin'];
+var listPerson = ['ChatBot'];
 
 var key = "3e50a5a9efb652e9023af556eaa1ac074c0295c5"
+//key = "1b32394436183cdba676dc36269d81a10bc135cd"
 var url = 'http://jast-io.com/ns'
-socket = require('socket.io-client').connect(url,{'force new connection': true});
+var url = 'http://localhost/ns'
+var socket = require('socket.io-client').connect(url,{'force new connection': true});
 socket.on('error', function(e){
     console.log(e)
 });
@@ -43,22 +45,34 @@ socket.on('connect', function () {
 
     });
     var data = {client:"1",
-	                   key:key,
-	                   app:"3", 
-	                   channel:"ChatBot"}
+	               key:key,
+	               app:"3", 
+	               channel:"ChatBot"}
 	socket.on('message',function (data){
+		console.log("MESSAGEEEEEE")
+		
 		try{
             data = JSON.parse(data)
         }catch(e){
             console.log(e)
         }
+        //console.log(data)
 		var datar = {client:"1",
 	                   key:key,
 	                   app:"3", 
 	                   message:{message:"Hello, i'm a bot. sorry!!!",login:"ChatBot"},
 	                   channel:data.data.login}
 	    if (data.channel == 'peoplelist')
-	    	datar.message = "Hello you are on the ChatJAST. I'm a bot and you are welcome."
+	    	datar.message.message = "Hello you are on the ChatJAST. I'm a bot and you are welcome."
+	   	if (data.channel == 'peoplelistadd'){
+	   		var login = data.data.login;
+	   		console.log(login)
+	   		emitnew(login,function(){
+				
+			})
+			return;
+	   	}
+	    console.log("emit")
 	    console.log(datar)
 		socket.emit('publish', datar,function (){});
 		
@@ -67,14 +81,14 @@ socket.on('connect', function () {
 	data.channel = "peoplelist";
 	socket.emit('psubscribe', data,function (){});
 
+	data.channel = "peoplelistadd";
+	socket.emit('psubscribe', data,function (){});
+
 });
 
 
-
-
-
-app.get("/user/add/:login",function(req,res){
-	var login = req.params.login.replace(/\W/g, '_');
+function emitnew(login,cb){
+	if(login !== undefined && login != null)
 	listPerson.contains(login,function(found,pos){
 		found || listPerson.push(login)
 		var data = {client:"1",
@@ -82,9 +96,20 @@ app.get("/user/add/:login",function(req,res){
 	                   app:"3", 
 	                   message:{flux:listPerson,login:login},
 	                   channel:"peoplelist"}
+	    console.log(data);
 		socket.emit('publish', data,function (){});
+		cb()
+	})
+}
+
+
+app.get("/user/add/:login",function(req,res){
+	var login = req.params.login.replace(/\W/g, '_');
+	emitnew(login,function(){
 		res.send("{ok:1}");
 	})
+
+	
 })
 
 app.get("/user/list",function(req,res){

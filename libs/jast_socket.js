@@ -105,7 +105,8 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                 }
                 
         	});
-    		fct(0,'ok');
+            if(fct)
+    		  fct(0,'ok');
     	});
     	
         socket.on('usubscribe', function(data) {
