@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
             var data = this;
             var add = function (){
                 console.log("insert");
-                data.secret = crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex');
+                data.secretkey = crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex');
                 data.save().success(function (savedata){
                     cb(savedata.values);
                 });
