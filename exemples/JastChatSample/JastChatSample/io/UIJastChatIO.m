@@ -24,7 +24,7 @@ static UIJastChatIO* UIJastChatIO_instance = nil;
 
 -(void)socketconnect{
     socketIO = [[SocketIO alloc] initWithDelegate:self];
-    [socketIO connectToHost:@"localhost" onPort:80 withParams:nil withNamespace:@"/ns"];
+    [socketIO connectToHost:@"jast-io.com" onPort:80 withParams:nil withNamespace:@"/ns"];
 }
 
 - (void) socketIODidDisconnect:(SocketIO *)socket disconnectedWithError:(NSError *)error{

@@ -35,7 +35,7 @@ var listPerson = ['ChatBot'];
 var key = "3e50a5a9efb652e9023af556eaa1ac074c0295c5"
 //key = "1b32394436183cdba676dc36269d81a10bc135cd"
 var url = 'http://jast-io.com/ns'
-var url = 'http://localhost/ns'
+//var url = 'http://localhost/ns'
 var socket = require('socket.io-client').connect(url,{'force new connection': true});
 socket.on('error', function(e){
     console.log(e)

@@ -258,6 +258,15 @@
 	// commit animations
 	[UIView commitAnimations];
 }
+- (void)growingTextView:(HPGrowingTextView *)growingTextView willChangeHeight:(float)height
+{
+    float diff = (growingTextView.frame.size.height - height);
+    
+	CGRect r = containerView.frame;
+    r.size.height -= diff;
+    r.origin.y += diff;
+	containerView.frame = r;
+}
 
 
 -(void)resignTextView
