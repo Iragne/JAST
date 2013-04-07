@@ -67,7 +67,6 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
     }}
     this._eventlist.push(e)
 	this._event.on(e.channel,e.fct);
-	// bind to redis automatic because watching Feeds.*
 };
 RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
     var a = this;
