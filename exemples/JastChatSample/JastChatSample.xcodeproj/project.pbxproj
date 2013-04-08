@@ -553,10 +553,13 @@
 		2D991C1F170A2DA300BA34C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JastChatSample/JastChatSample-Prefix.pch";
 				INFOPLIST_FILE = "JastChatSample/JastChatSample-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -564,6 +567,7 @@
 		2D991C20170A2DA300BA34C6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JastChatSample/JastChatSample-Prefix.pch";
 				INFOPLIST_FILE = "JastChatSample/JastChatSample-Info.plist";
