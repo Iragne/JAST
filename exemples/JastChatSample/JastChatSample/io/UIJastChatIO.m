@@ -141,6 +141,6 @@ static UIJastChatIO* UIJastChatIO_instance = nil;
     }
 }
 
-@end
+    @end
 
 
