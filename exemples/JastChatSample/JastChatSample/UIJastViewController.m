@@ -41,12 +41,11 @@
         
         //__weak UIJastViewController *this = self;
         [[UIJastChatIO getInstance] sendmessage:@"peoplelistadd" message:@{@"login": self.tf_login.text}];
-        [[UIJastChatIO getInstance] listen:self.tf_login.text cb:^(NSDictionary *rep) {
+        [[UIJastChatIO getInstance] listen:self.tf_login.text getold:NO  cb:^(NSDictionary *rep) {
             if (![self.tf_login.text isEqualToString:rep[@"login"]]){
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"message" object:rep];
             }
         }];
-        [[UIJastChatIO getInstance] connectChannel:self.tf_login.text getold:YES];
     }else{
         self.v_login.hidden = NO;
         OLGhostAlertView *ghastly = [[OLGhostAlertView alloc]  initWithTitle:@"Error" message:@"Your login met me more than 4 character" timeout:1.5 dismissible:YES];
@@ -57,7 +56,7 @@
 
 -(void)start{
     __weak UIJastViewController *this = self;
-    [[UIJastChatIO getInstance] listen:@"peoplelist" cb:^(NSDictionary *rep) {
+    [[UIJastChatIO getInstance] listen:@"peoplelist" getold:YES cb:^(NSDictionary *rep) {
         [this reloaddatalist:rep];
     }];
 }
