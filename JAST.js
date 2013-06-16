@@ -21,7 +21,7 @@
 //
 
 var config = require("./conf.js"),
-    env = require("./libs/env.js")
+    env = require("./libs/env.js"),
 	redis_emmitter = require("./libs/RedisEmitter.js"),
 	express = require('express'),
 	app = express.createServer(),
@@ -37,12 +37,11 @@ var config = require("./conf.js"),
 var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
 DB.on("error", function (err) {
     env.log.error("DB Error ");
-    env.log.error(err)
+    env.log.error(err);
 });
 
 if (config.redis.password){
     DB.auth(config.redis.password,function(e){
-        
     });
 }
 var io = null;
@@ -57,8 +56,8 @@ var start = function(){
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(express.cookieParser());
-        
-        
+
+
         app.use(express.static(__dirname + '/public'));
         app.set('view engine', 'jade');
         app.set('views', __dirname + '/views');
@@ -81,64 +80,58 @@ var start = function(){
              return next();
          });
         app.use(app.router);
-    
-        env.log.info("JAST.js","fin Config apps")
-    })
+
+        env.log.info("JAST.js","fin Config apps");
+    });
     app.use(express.compress());
     app.listen(config.express.port);
-    
+
     admin.bind(app,DB);
     redis_emmitter.use(config);
-    
-    
-    
+
     io = require('socket.io').listen(app);
+    io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
     io.set('log level', 2);
     //io.set('timeout', 0);
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
     io.enable('browser client gzip');          // gzip the file
 
-    io.configure( function() {
+    /*io.configure( function() {
     //    io.set('close timeout', 60*60*24); // 24h time out
-    });
+    });*/
     ns = io.of("/"+config.express.websocket);
-    
-    const prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
 
+    var prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
 
     DB.keys('/1/*',function(err,elts){
-        env.log.info("clean redis")
-        env.log.debug(elts)
+        env.log.info("clean redis");
+        env.log.debug(elts);
         if(elts)
             for (var i = 0; i < elts.length; i++) {
-                DB.del(elts[i])
-            };
-        
-    })
-    
+                DB.del(elts[i]);
+            }
+    });
+
 
     database.Applications.findAll({}).success(function(apps){
         if (apps){
-            for (i in apps){
-                model = apps[i]
+            for (var i in apps){
+                model = apps[i];
                 DB.sadd(prefix+"Clients",model.ClientId);
                 DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
                 DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
             }
         }
-        
-    })
+    });
 
     database.Applications.find({where:{ClientId:1}}).success(function(app){
         DB.sadd(prefix+"Channels",1+":"+1+":"+"admin_channel");
         DB.sadd(prefix+"AppsKey",1+":"+1+":"+app.secretkey);
         jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,function(){
-            poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});        
+            poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});
         });
     });
-
-
 };
 
 
@@ -148,4 +141,4 @@ var start = function(){
 
 database.run(function(){
     start();
-})
+});
