@@ -32,11 +32,12 @@ var	redis_req = require('redis'),
     env = require("./env.js");
 
 module.exports.bind = function(app) {
+    "use strict";
     var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     DB.on("error", function (err) {
         if (err){
             env.log.error("DB Error ");
-            env.log.error(err)
+            env.log.error(err);
         }
     });
     if (config.redis.password){
@@ -45,26 +46,27 @@ module.exports.bind = function(app) {
         });
     }
 	app.get("/*", function(req, res, next){
-        if((typeof req.cookies['connect.sid'] === 'undefined' || !req.session.auth || req.session.auth.client == undefined) && req.path.indexOf("/admin/auth") == -1){
+        if((typeof req.cookies['connect.sid'] === 'undefined' || !req.session.auth || req.session.auth.client === undefined) && req.path.indexOf("/admin/auth") == -1){
                 return res.redirect('/admin/auth/login');
         }
 		if (req.path != "/admin/auth/logout"  && req.path.indexOf("/admin/auth") > -1 &&  req.session.auth && req.session.auth.client){
-        	return res.redirect('/admin/apps/'+req.session.auth.client);
-    	}
+            return res.redirect('/admin/apps/'+req.session.auth.client);
+        }
         next();
     });
 	app.get("/",function(req,res){
 		if (req.session.auth && req.session.auth.client){
-        	return res.redirect('/admin/apps/'+req.session.auth.client);
-    	}
-    	return res.redirect('/admin/auth/login');
+            return res.redirect('/admin/apps/'+req.session.auth.client);
+        }
+        return res.redirect('/admin/auth/login');
 	});
 	users(app,DB);
-	
 	channels(app,DB);
-	
 	applications(app,DB);
-	
-	poolers(app,DB)
+	poolers(app,DB);
 };
+
+
+
+
 
