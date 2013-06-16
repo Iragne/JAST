@@ -14,6 +14,7 @@
     "sequelize": "1.x",
     "socket.io-client": "x",
     "jajsondiff":"git://github.com/Iragne/jajsondiff.git",
-    "mutex":"git://github.com/Iragne/node-mutex.git"
+    "mutex":"git://github.com/Iragne/node-mutex.git",
+    "mysql":"x"
   }
 }
