@@ -26,17 +26,18 @@ var util = require('util'),
     config = require("../conf.js"),
     env = require("./env.js"),
     RedisHooker = require('./RedisHooker.js');
-   
+
 
 var redish = new RedisHooker();
 var redisinstance = null;
 var redisinstance_readwrite = null;
 module.exports.use = function(config) {
+    "use strict";
 	redish.use(config);
 	redisinstance = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     redisinstance.on("error", function (err) {
         env.log.error("RedisEmitterSub ");
-        env.log.error(err)
+        env.log.error(err);
     });
     if (config.redis.password){
         redisinstance.auth(config.redis.password,function(e){
@@ -47,7 +48,7 @@ module.exports.use = function(config) {
     redisinstance_readwrite = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
     redisinstance_readwrite.on("error", function (err) {
         env.log.error("RedisEmitterSub ");
-        env.log.error(error)
+        env.log.error(error);
     });
     if (config.redis.password){
         redisinstance_readwrite.auth(config.redis.password,function(e){
@@ -55,70 +56,70 @@ module.exports.use = function(config) {
                 throw e;
         });
     }
-
-    env.log.debug("create instance")
-	
+    env.log.debug("create instance");
 };
 
 function RedisEmitterSub() {
+    "use strict";
 	this._event = redish.getEmmiter();
-    this._eventlist = []
-};
+    this._eventlist = [];
+}
 RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
+    "use strict";
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
     var ch = channel;
     var channelclean = channel.replace(prefix,'');
 //    console.log("sub count ====> "+channel);
     redisinstance_readwrite.exists(countc,function(err,e){
-    	if (e)
-    		redisinstance_readwrite.incr(countc)
-    	else
-    		redisinstance_readwrite.set(countc,1)
+        if (e)
+            redisinstance_readwrite.incr(countc);
+        else
+            redisinstance_readwrite.set(countc,1);
     });
     redisinstance_readwrite.exists(channel,function(err,dd){
         if(!dd)
-        	redisinstance_readwrite.set(channel,1);
-    })
+            redisinstance_readwrite.set(channel,1);
+    });
     var e = {channel:channel,fct:function(datae){
         try{
-            var data = JSON.parse(datae)
-            a.callback(data.key,channelclean,datae)
+            var data = JSON.parse(datae);
+            a.callback(data.key,channelclean,datae);
         }catch(e){
-            env.log.error(e)
+            env.log.error(e);
         }
-    }}
-    this._eventlist.push(e)
+    }};
+    this._eventlist.push(e);
 	this._event.on(e.channel,e.fct);
 };
 RedisEmitterSub.prototype.unsubscribe = function(channel,prefix, callback) {
+    "use strict";
     var a = this;
     var countc = prefix+"ChannelsCounter"+channel;
     env.log.debug("unsub ====> "+countc);
-    
-    for (var i = 0; i < this._eventlist.length; i++) {
-        this._event.removeListener(this._eventlist[i].channel,this._eventlist[i].fct)
-    };
-    redisinstance_readwrite.decr(countc,function(e){
-    	redisinstance_readwrite.get(countc,function(err,e){
-    		if (e <= 0){
-    			redisinstance_readwrite.del(countc);
-    			if(callback)
-    				callback()
-    		}
-    			
 
-    	})
-    	
+    for (var i = 0; i < this._eventlist.length; i++) {
+        this._event.removeListener(this._eventlist[i].channel,this._eventlist[i].fct);
+    }
+    redisinstance_readwrite.decr(countc,function(e){
+        redisinstance_readwrite.get(countc,function(err,e){
+            if (e <= 0){
+                redisinstance_readwrite.del(countc);
+                if(callback)
+                    callback();
+            }
+        });
     });
 	// bind to redis automatic because watching Feeds.*
 };
 
 RedisEmitterSub.prototype.callback = function(data){
-    	env.log.error("Not not implemented")
-}
+    "use strict";
+    env.log.error("Not not implemented");
+};
 
 RedisEmitterSub.prototype.on = function(event, callback) {
+    "use strict";
 	if(typeof callback !== 'function') {
 		throw new Error('RedisEmitterSub Invalid addListener callback');
 	}
@@ -126,45 +127,45 @@ RedisEmitterSub.prototype.on = function(event, callback) {
 		this.callback = callback;
 	}
 };
-module.exports.createSubscribe = function(){ 
-    return new RedisEmitterSub()
+module.exports.createSubscribe = function(){
+    "use strict";
+    return new RedisEmitterSub();
 };
 
 
 
 function RedisEmitterPub() {
-	
-};
+    "use strict";
+}
 RedisEmitterPub.prototype.publish = function(channel,key,channelclean, data) {
+    "use strict";
     try {
-    	env.log.info("push data===========>")
-        
-        
-        
+        env.log.info("push data===========>");
         //console.log(ch)
-    	var a = {key:key,channel:channelclean,data:data}
-    	var d = JSON.stringify(a);
-    	//console.log(d)
-    	redisinstance_readwrite.set(channel, d,function(err,e){
+        var a = {key:key,channel:channelclean,data:data};
+        var d = JSON.stringify(a);
+        //console.log(d)
+        redisinstance_readwrite.set(channel, d,function(err,e){
             if(err){
-                env.log.error("RedisEmitterPub.prototype.set errr")
-                env.log.error(err)
+                env.log.error("RedisEmitterPub.prototype.set errr");
+                env.log.error(err);
             }
             // console.log(channel)
             // console.log(e)
             // console.log(err)
-
-        })
+        });
         //console.log(d)
         redisinstance.publish(channel, d);
     }catch(e){
-        env.log.error("RedisEmitterPub.prototype.publish errr")
-        env.log.error(e)
-    }	
+        env.log.error("RedisEmitterPub.prototype.publish errr");
+        env.log.error(e);
+    }
 };
-module.exports.createPublish = function(){ 
-	return new RedisEmitterPub()
+module.exports.createPublish = function(){
+    "use strict";
+	return new RedisEmitterPub();
 };
+
 
 
 

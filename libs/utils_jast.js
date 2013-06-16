@@ -22,6 +22,7 @@
 
 
 Array.prototype.contains = function(k, callback) {
+    "use strict";
     var self = this;
     return (function check(i) {
         if (i >= self.length) {
@@ -34,4 +35,4 @@ Array.prototype.contains = function(k, callback) {
 
         return process.nextTick(check.bind(null, i+1));
     }(0));
-}
+};

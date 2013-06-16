@@ -29,18 +29,18 @@ var http = require("http"),
     urlparse = require('url');
 
 
-const RedisEmitter_events = new EventEmitter();
+var RedisEmitter_events = new EventEmitter();
 
-const dmp =new diff_match_patch.difftext();
-const jsondiffpatch =  diff_match_patch.diffjson;
-jsondiffpatch.config.textDiffMinLength = 5; 
+var dmp =new diff_match_patch.difftext();
+var jsondiffpatch =  diff_match_patch.diffjson;
+jsondiffpatch.config.textDiffMinLength = 5;
 
-RedisEmitter_events.setMaxListeners(10000000)
+RedisEmitter_events.setMaxListeners(10000000);
 
 RedisEmitter_events.on("error",function(e){
     env.log.debug("EvEmit");
     env.log.debug(e);
-}) 
+});
 
 var socket = null;
 var channel_emmit = function (){

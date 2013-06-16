@@ -24,10 +24,11 @@ var config = require("./conf.js"),
     env = require("./libs/env.js"),
 	redis_emmitter = require("./libs/RedisEmitter.js"),
 	express = require('express'),
-	app = express.createServer(),
+    http = require('http'),
+    RedisStore  = require('connect-redis')(express),
+	app = express(),
 	redis = require('redis'),
 	database =  require('./libs/db.js'),
-	RedisStore  = require('connect-redis')(express),
 	poolers = require("./libs/pooler.js"),
 	admin = require('./libs/apps.js'),
 	jast_socket = require("./libs/jast_socket.js");
@@ -36,6 +37,7 @@ var config = require("./conf.js"),
 
 var DB = redis.createClient(config.redis.port,config.redis.host,config.redis.host.options || {});
 DB.on("error", function (err) {
+    "use strict";
     env.log.error("DB Error ");
     env.log.error(err);
 });
@@ -48,7 +50,7 @@ var io = null;
 var ns = null;
 
 var start = function(){
-
+    "use strict";
     app.configure(function(){
         app.set('title', 'JAST API');
         app.use(express.compress());
@@ -84,12 +86,17 @@ var start = function(){
         env.log.info("JAST.js","fin Config apps");
     });
     app.use(express.compress());
-    app.listen(config.express.port);
+    //app.listen(config.express.port);
 
-    admin.bind(app,DB);
+
     redis_emmitter.use(config);
 
-    io = require('socket.io').listen(app);
+
+    var server = http.createServer(app).listen(config.express.port);
+    admin.bind(app,DB);
+
+
+    io = require('socket.io').listen(server);
     io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling']);
     io.set('log level', 2);
     //io.set('timeout', 0);
@@ -140,5 +147,6 @@ var start = function(){
 
 
 database.run(function(){
+    "use strict";
     start();
 });

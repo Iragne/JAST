@@ -26,9 +26,6 @@ var nconf = require('nconf');
 var file = nconf.get("conf-file");
 nconf.file({ file:  file || 'config.json' });
 
- 
-
- 
 
 var conf = nconf.get('conf');
 
