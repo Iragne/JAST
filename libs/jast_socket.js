@@ -187,7 +187,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
             var diff = datae.diff || 0;
 
             if (url){
-                urlk = crypto.createHash('sha1').update(url).digest('hex');
+                var urlk = crypto.createHash('sha1').update(url).digest('hex');
                 keyurlclient = "Poolers:"+clientid+':'+urlk;
                 datae.channel = urlk;
             }
