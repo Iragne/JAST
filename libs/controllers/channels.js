@@ -51,16 +51,16 @@ module.exports = function (app,DB){
     app.get('/admin/apps/channels/:appid', function (req, res) {
         var appid = req.params.appid.replace(/\W/g, '');
         database.Applications.find(appid).success(function(app){
-            key = prefix+listener+":"+app.ClientId+":"+app.id+':'+'*';
+            var key = prefix+listener+":"+app.ClientId+":"+app.id+':'+'*';
             console.log(key);
             DB.keys(key, function(err, data) {
                 //console.log(data);
-                tab = []
+                var tab = [];
                 for (var i = 0; i < data.length; i++) {
-                    a = data[i].replace(prefix+listener+":","")
-                    tab.push(a)
-                };
-                res.render('apps/channel', {flux:tab,a:app,session:req.session.auth});
+                    var a = data[i].replace(prefix+listener+":","");
+                    tab.push(a);
+                }
+                res.render('apps/channel', {flux:tab,a:app.values,session:req.session.auth});
             });
         });
     });

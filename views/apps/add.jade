@@ -1,35 +1,37 @@
-#addForm(align='center')
-    form(method='post',action='/admin/apps/add')
-        table
-            tr
-                td
-                    label Application name
-                td
-                    input(name='app[name]',type='text',value=locals.flux.name)
-            tr
-                td
-                    label Application description
-                td
-                    input(name='app[description]',type='text',value=locals.flux.description)
-            tr
-                td
-                    label Application bundle
-                td
-                    input(name='app[bundle]',type='text',value=locals.flux.bundle)
-            tr
-                td
-                    label Enable
-                td
+extends ../layout
+block content
+    #addForm(align='center')
+        form(method='post',action='/admin/apps/add')
+            table
+                tr
+                    td
+                        label Application name
+                    td
+                        input(name='app[name]',type='text',value=locals.flux.name)
+                tr
+                    td
+                        label Application description
+                    td
+                        input(name='app[description]',type='text',value=locals.flux.description)
+                tr
+                    td
+                        label Application bundle
+                    td
+                        input(name='app[bundle]',type='text',value=locals.flux.bundle)
+                tr
+                    td
+                        label Enable
+                    td
 
-                    input(name='app[active]',type='checkbox',value='1', checked=(locals.flux.active==1 ? "checked" : undefined))
-                    input(name='app[active]',type='text',value='0',style='display:none')
-            tr
-                td
-                    
-                td
-                    input(name='submit',type='submit',name='Add',class='action')
-                    - if (locals.flux.id) {
-                        input(name='app[id]',type='hidden',value=locals.flux.id)   
-                    -}
-                    
+                        input(name='app[active]',type='checkbox',value='1', checked=(locals.flux.active==1 ? "checked" : undefined))
+                        input(name='app[active]',type='text',value='0',style='display:none')
+                tr
+                    td
+                        
+                    td
+                        input(name='submit',type='submit',name='Add',class='action')
+                        - if (locals.flux.id) {
+                            input(name='app[id]',type='hidden',value=locals.flux.id)   
+                        -}
+                        
 

@@ -11,12 +11,12 @@
         "port": 6379,
         "password": "password"
       },
-      "port": "80",
+      "port": "4242",
       "websocket": "ns"
     },
     "mysql": {
       "host": "127.0.0.1",
-      "port": 3307,
+      "port": 3306,
       "username": "jast",
       "password": "jastpassword",
       "database": "jast"

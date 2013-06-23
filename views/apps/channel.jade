@@ -1,14 +1,15 @@
-.list
-  table(style='width:100%')
-    thead
-      tr
-        th Liste des channels
-        th actions
-    tbody
-      each app, i in flux
+extends ../layout
+block content
+  .list
+    table(style='width:100%')
+      thead
         tr
-            td
-                #{app}
-            td
-                a(href='/admin/apps/channel/listen/'+a.id+"/"+app) Listen
-                
+          th Liste des channels
+          th actions
+      tbody
+        each app, i in locals.flux
+          tr
+              td #{app}
+              td
+                  a(href='/admin/apps/channel/listen/'+locals.a.id+"/"+app) Listen
+                  

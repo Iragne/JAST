@@ -29,7 +29,7 @@ var Sequelize = require('sequelize'),
 
 var run = function (next){
     "use strict";
-    var  sequelize = new Sequelize(config.mysql.database, config.mysql.username, config.mysql.password, {
+    var sequelize = new Sequelize(config.mysql.database, config.mysql.username, config.mysql.password, {
         host: config.mysql.host,
         port: config.mysql.port,
         protocol: 'tcp',
@@ -59,6 +59,8 @@ var run = function (next){
 
     Clients.hasMany(Users, { as: 'Admin' });
     Clients.hasMany(Applications,{ as: 'Applications' });
+
+
 
     Clients.sync().success(function() {
         Users.sync().success(function() {
@@ -106,12 +108,15 @@ var run = function (next){
                 }
             }).error(function(error) {
             // whooops
+            env.log.error("sqdfqsf",error);
             });
         }).error(function(error) {
         // whooops
+        env.log.error("sqdfqsf",error);
         });
     }).error(function(error) {
     // whooops
+    env.log.error("sqdfqsf",error);
     });
 
     module.exports.sequelize = sequelize;

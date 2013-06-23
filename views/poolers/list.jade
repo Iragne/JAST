@@ -1,21 +1,21 @@
-.list
-    table(style='width:100%')
-        thead
-            tr
-                th apps
-                th channel
-                th url
-                th action
-        tbody
-            each p, i in flux
+extends ../layout
+block content
+    .list
+        table(style='width:100%')
+            thead
                 tr
-                    td 
-                        a(href='/admin/apps/details/' + p.appid) #{p.appid} 
-                    td 
-                        a(href='/admin/apps/channels/' + p.appid) #{p.channel} 
-                    td
-                        #{p.url}
-                    
-                    td
-                        span 
-                            a(href='/admin/pooler/kill/' + p.appid+"/"+p.channel) kill
+                    th apps
+                    th channel
+                    th url
+                    th action
+            tbody
+                each p, i in locals.flux
+                    tr
+                        td 
+                            a(href='/admin/apps/details/' + p.appid) #{p.appid} 
+                        td 
+                            a(href='/admin/apps/channels/' + p.appid) #{p.channel} 
+                        td #{p.url}
+                        td
+                            span 
+                                a(href='/admin/pooler/kill/' + p.appid+"/"+p.channel) kill

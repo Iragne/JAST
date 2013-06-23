@@ -51,14 +51,14 @@ var ns = null;
 
 var start = function(){
     "use strict";
-    app.configure(function(){
+    //app.configure(function(){
         app.set('title', 'JAST API');
         app.use(express.compress());
         app.use(express.logger());
         app.use(express.bodyParser());
         app.use(express.methodOverride());
         app.use(express.cookieParser());
-
+        app.locals.self = true;
 
         app.use(express.static(__dirname + '/public'));
         app.set('view engine', 'jade');
@@ -84,14 +84,14 @@ var start = function(){
         app.use(app.router);
 
         env.log.info("JAST.js","fin Config apps");
-    });
+    //});
     app.use(express.compress());
     //app.listen(config.express.port);
 
 
     redis_emmitter.use(config);
 
-
+    console.log(config.express.port);
     var server = http.createServer(app).listen(config.express.port);
     admin.bind(app,DB);
 
@@ -124,7 +124,7 @@ var start = function(){
     database.Applications.findAll({}).success(function(apps){
         if (apps){
             for (var i in apps){
-                model = apps[i];
+                var model = apps[i];
                 DB.sadd(prefix+"Clients",model.ClientId);
                 DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
                 DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
@@ -148,5 +148,6 @@ var start = function(){
 
 database.run(function(){
     "use strict";
+    console.log(config.express.port);
     start();
 });

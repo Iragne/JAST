@@ -14,16 +14,17 @@ html
             div(id='cssmenu')
                 ul
                     li
-                        a(href='/admin/apps/'+session.client) Applications
+                        a(href='/admin/apps/'+locals.session.client) Applications
                     li
-                        a(href='/admin/poolers/'+session.client) Poolers
+                        a(href='/admin/poolers/'+locals.session.client) Poolers
                     li
-                        a(href='/admin/users/'+session.client) Users
+                        a(href='/admin/users/'+locals.session.client) Users
                     li
                         a(href='/admin/auth/logout') Logout
        -} 
     div(id='jai-content')
-       #content  !{body}
+        #content  
+          block content
     div(id='jai-footer')
            div(class='f-left') &copy;  
               a(href='https://github.com/Iragne/JAST') Adelskott
