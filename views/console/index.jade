@@ -1,0 +1,134 @@
+extends ../layout
+block script
+	script
+		var socket = null;
+		var s_socket = null;
+		function send(){
+			var app = JSON.parse($(".p_select").val());
+			var client_id = $(".p_client").val();
+			var channel = $(".p_channel").val();
+			var message = JSON.parse($(".p_message").val());
+
+			var elt = {
+				client:client_id,
+				key: app.key,
+				app:app.id,
+				channel:channel,
+				message:message
+			};
+			socket.emit('publish', elt); 
+			console.log(elt);
+		}
+
+		function sub(){
+			var app = JSON.parse($(".s_select").val());
+			var client_id = $(".s_client").val();
+			var channel = $(".s_channel").val();
+			var url = $(".s_url").val();
+			var ttl = $(".s_ttl").val();
+			var elt = {
+				client:client_id,
+				key: app.key,
+				app:app.id,
+				channel:channel
+			};
+			if (url.length > 0 && ttl.length > 0){
+				elt.url = url;
+				elt.ttl = ttl;	
+			}
+			s_socket.emit('psubscribe', elt); 
+			console.log(elt);
+		}
+		function clearMsg(){
+			$(".s_message").val("");
+		}
+		function publishMsg(){
+			if (socket){
+				send();
+				//socket.disconnect();
+			} else {
+				socket = io.connect('http://'+window.location.host+'/ns',{'force new connection': true});
+			}
+			socket.on('connect', function (data) {
+				send();
+			});
+			socket.on('message', function (data) {});
+			return false;
+		}
+		function subscribeMsg(){
+			if (s_socket){
+				sub();
+				//s_socket.disconnect();
+			} else {
+				s_socket = io.connect('http://'+window.location.host+'/ns',{'force new connection': true});
+			}
+			s_socket.on('connect', function (data) {
+				sub();
+			});
+			s_socket.on('message', function (data) {
+				var old_data = $(".s_message").val();
+				$(".s_message").val(data+"\n"+old_data);
+			});
+			return false;
+		}
+block content
+	table
+		tr
+			td(style="width:50%")	Publisher
+				table
+					tr
+						td	Select app
+							br
+							input.p_client(type="hidden",value=locals.client_id)
+							select.p_select
+								each app, i in locals.list_apps
+									option(value=JSON.stringify({id:app.id,key:app.secretkey})) #{app.name}
+						td	Channel
+							br
+							input.p_channel(type="text")
+					tr
+						td(colspan="2")
+							br
+							br
+							div(align="right")
+								input(type="button",value="Send",onclick="return publishMsg()")
+					tr
+						td(colspan="2")	message
+							br
+							textarea.p_message(style="width:100%;height:400px;")
+			td(style="width:50%")	Subscriber
+				table
+					tr
+						td	Select app
+							br
+							input.s_client(type="hidden",value=locals.client_id)
+							select.s_select
+								each app, i in locals.list_apps
+									option(value=JSON.stringify({id:app.id,key:app.secretkey})) #{app.name}
+						td	Channel
+							br
+							input.s_channel(type="text")
+					tr
+						td	URL
+							br
+							input.s_url(type="text")
+						td	TTL
+							br
+							input.s_ttl(type="text")
+					tr
+						td(colspan="2")	
+							div(align="right")
+								input(type="button",value="Clear",onclick="return clearMsg()")
+								input(type="button",value="Send",onclick="return subscribeMsg()")
+					tr
+						td(colspan="2")	Output
+							br
+							textarea.s_message(style="width:100%;height:400px;")
+
+
+
+
+
+
+
+

@@ -183,7 +183,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
             var url = datae.url;
             var ttl = datae.ttl;
             var keyurlclient = null;
-            var feed = datae.feed || 0;
+            var feed = datae.feed || (url ? 1 : 0) || 0;
             var diff = datae.diff || 0;
 
             if (url){
@@ -251,20 +251,21 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                             // inc le nb de pooler
                            //DB.incr(keyurlclient2,function(){});
                            //check si un flux de pooler
-                           var subpushch = prefix+listener+":"+clientid+":"+appid+":"+channel;
-                           DB.get(subpushch,function (err,elt){
+                           //var subpushch = prefix+listener+":"+clientid+":"+appid+":"+channel;
+                           DB.get(ch,function (err,elt){
                                if (elt){
-                                   if(elt != "1"){
+                                   /*if(elt != "1"){
                                        try{
                                             socket.emit('message', elt);
                                        }catch(e){
                                        }
                                    }else{
                                         env.log.debug("FILE:jast_socket.js","Feeds exist but empty "+subpushch);
-                                   }
+                                   }*/
                                }else{
                                    publishp = redis_emmitter.createPublish();
                                    publishp.publish(admin_channel,"message",channel,m2);
+                                   publishp = null;
                                }
                                callback(null,"pooler exist");
                            });
@@ -275,8 +276,9 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                                 env.log.debug("FILE:jast_socket.js","push direct redis to "+ admin_channel);
                                 publishp = redis_emmitter.createPublish();
                                 publishp.publish(admin_channel,"message",channel,m2);
+                                publishp = null;
                                 //DB.set(clientapppooler, 1, function(elt) {
-                                    callback(null,"pooler create");
+                                callback(null,"pooler create");
                                 //});
                             });
                             // define the pooler id

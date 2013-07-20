@@ -5,30 +5,33 @@ html
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     script(src='/javascripts/jquery-1.4.3.min.js')
     script(src='/socket.io/socket.io.js')
-
+    block script
     link(rel='stylesheet', href='/stylesheets/layout.css')
-    div(id='jai-header')
-        a(href='/')
-          img(src='/images/JAST.gif', alt='',width='180',id='logo')
-        - if (locals.session){        
-            div(id='cssmenu')
-                ul
-                    li
-                        a(href='/admin/apps/'+locals.session.client) Applications
-                    li
-                        a(href='/admin/poolers/'+locals.session.client) Poolers
-                    li
-                        a(href='/admin/users/'+locals.session.client) Users
-                    li
-                        a(href='/admin/auth/logout') Logout
-       -} 
-    div(id='jai-content')
-        #content  
-          block content
-    div(id='jai-footer')
-           div(class='f-left') &copy;  
-              a(href='https://github.com/Iragne/JAST') Adelskott
-           div(class='f-right') Powered by Adelskott
+    body
+      div(id='jai-header')
+          a(href='/')
+            img(src='/images/JAST.gif', alt='',width='180',id='logo')
+          - if (locals.session){        
+              div(id='cssmenu')
+                  ul
+                      li
+                          a(href='/admin/apps/'+locals.session.client) Applications
+                      li
+                          a(href='/admin/poolers/'+locals.session.client) Poolers
+                      li
+                          a(href='/admin/console/'+locals.session.client) Console
+                      li
+                          a(href='/admin/users/'+locals.session.client) Users
+                      li
+                          a(href='/admin/auth/logout') Logout
+         -} 
+      div(id='jai-content')
+          #content  
+            block content
+      div(id='jai-footer')
+             div(class='f-left') &copy;  
+                a(href='https://github.com/Iragne/JAST') Adelskott
+             div(class='f-right') Powered by Adelskott
 
 
 

@@ -91,7 +91,7 @@ var start = function(){
 
     redis_emmitter.use(config);
 
-    console.log(config.express.port);
+    console.log("JAST LISTEN ON ",config.express.port);
     var server = http.createServer(app).listen(config.express.port);
     admin.bind(app,DB);
 
