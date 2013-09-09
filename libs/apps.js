@@ -23,6 +23,7 @@
 var	redis_req = require('redis'),
     database =  require('./db.js'),
     crypto = require('crypto'),
+    api_applications = require('./api/applications.js'),
     applications = require('./controllers/applications.js'),
     channels = require('./controllers/channels.js'),
     users = require('./controllers/users.js'),
@@ -46,7 +47,11 @@ module.exports.bind = function(app) {
 
         });
     }
+    
 	app.get("/*", function(req, res, next){
+        if (req.path && req.path.indexOf("/served/by/node/isrunning") !== -1){
+            return next();
+        }
         if((typeof req.cookies['connect.sid'] === 'undefined' || !req.session.auth || req.session.auth.client === undefined) && req.path.indexOf("/admin/auth") == -1){
                 return res.redirect('/admin/auth/login');
         }
@@ -61,11 +66,19 @@ module.exports.bind = function(app) {
         }
         return res.redirect('/admin/auth/login');
 	});
+    app.get("/served/by/node/isrunning",function (q,r){
+        r.json({});
+    });
+
+
 	users(app,DB);
 	channels(app,DB);
 	applications(app,DB);
 	poolers(app,DB);
     console(app,DB);
+
+
+    api_applications(app,DB);
 };
 
 

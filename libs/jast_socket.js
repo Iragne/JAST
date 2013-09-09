@@ -48,7 +48,7 @@ var checkdata = function(socket,data,clientid,appkey){
     var key = data.key;
     var client = data.client;
     if (clientid !== null && appkey !== null && (clientid != client || key != appkey)){
-        socket.close();
+        socket.disconnect();
         return false;
     }
     return true;

@@ -44,29 +44,27 @@ RedisEmitter_events.on("error",function(e){
 
 var socket = null;
 var channel_emmit = function (){
-        
-        var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket
-        env.log.debug("Channel admin Listen "+url)
-        if (socket == null)
+        "use strict";
+        var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket;
+        env.log.debug("Channel admin Listen "+url);
+        if (socket === null)
             socket = require('socket.io-client').connect(url,{'force new connection': true});
         socket.on('error', function(e){
-            env.log.error("error admin channel")
-            env.log.error(e)
+            env.log.error("error admin channel");
+            env.log.error(e);
         });
         socket.on('connect', function () {
             env.log.debug("admin channel connected");
             socket.on('disconnect', function(){
-                env.log.debug("disconenct admin channel")
+                env.log.debug("disconenct admin channel");
             });
             RedisEmitter_events.on('pooler_message',function(data){
-                env.log.debug('pooler_message')
+                env.log.debug('pooler_message');
                 socket.emit('publish', data,function (){
-                
-               }); 
+               });
             });
         });
-    
-}
+};
 exports.run = function(conf){
 //    return;    
     channel_emmit();
@@ -77,33 +75,33 @@ exports.run = function(conf){
     var url = 'http://'+config.poolers.server+':'+config.express.port+'/'+config.express.websocket;
     var socket_listen = require('socket.io-client').connect(url,{'force new connection': true});
     socket_listen.on('error', function(e){
-            env.log.error("NO Connection for admin channel " + url)
-            env.log.error(e)
+            env.log.error("NO Connection for admin channel " + url);
+            env.log.error(e);
     });
     socket_listen.on('connect', function () {
-        env.log.info("Listen connected")
+        env.log.info("Listen connected");
         socket_listen.on('disconnect', function(e){
-            env.log.debug("Disconenct Pooler")
+            env.log.debug("Disconenct Pooler");
         });
         socket_listen.on('killpooler',function (datae){
-            var datakey = JSON.parse(datae)
-            RedisEmitter_events.emit(datakey.data.channel,datakey)
+            var datakey = JSON.parse(datae);
+            RedisEmitter_events.emit(datakey.data.channel,datakey);
         });
-        socket_listen.on('message',function (datae){ 
+        socket_listen.on('message',function (datae){
             var data = null;
             var datakey = null;
             try{
-                datakey = JSON.parse(datae)
-                data = JSON.parse(datakey.data)
+                datakey = JSON.parse(datae);
+                data = JSON.parse(datakey.data);
             }catch(e){
-                env.log.error("Can't convert to JSON")
-                env.log.error(e)
+                env.log.error("Can't convert to JSON");
+                env.log.error(e);
             }
-            env.log.info("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel)
+            env.log.info("Create POOLER url: "+data.url + " TTL: "+data.ttl + " c:"+data.clientid + " a:"+data.appid+" ch:"+data.channel);
             
             var url = data.url;
             var ttl = data.ttl;
-            if (ttl  == 0)
+            if (ttl  === 0)
                 ttl = 1;
             var channel = data.channel;//crypto.createHash('sha1').update(url).digest('hex');
             var clientid = data.clientid;
@@ -116,26 +114,26 @@ exports.run = function(conf){
             var request = null;
             var timer = null;
             var getRestData = function (){
-                env.log.info("getdata "+url)
+                env.log.info("getdata "+url);
                 request = http.get(urlparse.parse(url), function(res){
-                    var body = ''
+                    var body = '';
                     res.setEncoding('binary');
                     res.on('data', function(chunk){body += chunk;});
                     res.on('end', function(){
                         if (stop)
                             return;
-                        if (body != olddata || olddata == null){
+                        if (body != olddata || olddata === null){
                             olddata = body;
                             try{
-                                body = JSON.parse(body)
+                                body = JSON.parse(body);
                             }catch (e){
-                                env.log.error("Pas json")
-                                env.log.error(e)
+                                env.log.error("Pas json");
+                                env.log.error(e);
                             }
                             
                             RedisEmitter_events.emit('pooler_message',{client:clientid,
                                                                        key: keysecret,
-                                                                       app:appid, 
+                                                                       app:appid,
                                                                        message:body,
                                                                        channel:channel});
                         }
@@ -160,20 +158,20 @@ exports.run = function(conf){
                 getRestData();
             var event_ch = "/"+config.jast.version+"/"+config.jast.namespace+"/"+config.jast.namesapcelistener+":"+clientid+":"+appid+":"+channel;
             function killreq(){
-                env.log.info("try to kill it")
+                env.log.info("try to kill it");
                 stop = true;
-                request.abort()
-                clearTimeout(timer)
-                RedisEmitter_events.removeListener(event_ch,killreq)
+                request.abort();
+                clearTimeout(timer);
+                RedisEmitter_events.removeListener(event_ch,killreq);
             }
-            RedisEmitter_events.on(event_ch,killreq)
+            RedisEmitter_events.on(event_ch,killreq);
         });
         data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
         socket_listen.emit('psubscribe', data,function (e){
-            env.log.debug(e)
+            env.log.debug(e);
         });
     });
-}
+};
 
 //jsondiffpatch.config.diff_match_patch = require('./diff_match_patch_uncompressed.js');
 

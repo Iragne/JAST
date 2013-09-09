@@ -23,13 +23,15 @@ var nconf = require('nconf');
 
  nconf.argv().env();
 
+
+// Commmand ligne --conf-file="./cong.json"
 var file = nconf.get("conf-file");
 nconf.file({ file:  file || 'config.json' });
 
 
 var conf = nconf.get('conf');
 
-
+// global var for all conf 
 module.exports = conf;
 
 

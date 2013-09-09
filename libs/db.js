@@ -104,7 +104,7 @@ var run = function (next){
                     next();
                 }catch(e){
                     env.log.error("******************************************************************************");
-                    env.log.error(e);
+                    env.log.error(e,e.stack);
                 }
             }).error(function(error) {
             // whooops

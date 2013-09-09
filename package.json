@@ -1,6 +1,9 @@
 {
   "name": "JAST",
   "version": "0.0.2",
+  "engines": {
+    "node": "0.10.*"
+  },
   "dependencies": {
     "express": "x",
     "redis": "x",
@@ -16,5 +19,12 @@
     "jajsondiff":"git://github.com/Iragne/jajsondiff.git",
     "mutex":"git://github.com/Iragne/node-mutex.git",
     "mysql":"x"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "scripts": {
+    "test": "make test-all"
   }
 }

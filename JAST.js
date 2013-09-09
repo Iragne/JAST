@@ -49,7 +49,7 @@ if (config.redis.password){
 var io = null;
 var ns = null;
 
-var start = function(){
+var start = function(cb){
     "use strict";
     //app.configure(function(){
         app.set('title', 'JAST API');
@@ -139,6 +139,7 @@ var start = function(){
             poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});
         });
     });
+    cb(app);
 };
 
 
@@ -146,8 +147,23 @@ var start = function(){
 
 
 
-database.run(function(){
-    "use strict";
-    console.log(config.express.port);
-    start();
-});
+
+
+if (module.parent) {
+    module.exports.start = function(cb){
+        database.run(function(){
+            "use strict";
+            console.log(config.express.port);
+            start(cb);
+        });
+    };
+}else{
+    database.run(function(){
+        "use strict";
+        console.log(config.express.port);
+        start(function (){
+        });
+    });
+}
+
+
