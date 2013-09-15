@@ -66,6 +66,7 @@ var run = function (next){
         Users.sync().success(function() {
             Applications.sync().success(function() {
                 // woot woot
+                var chainer = new Sequelize.Utils.QueryChainer();
                 env.log.debug("******************************************************************************");
                 try{
                   var defaultclient = Clients.build({
@@ -79,7 +80,7 @@ var run = function (next){
                         master:1
                     });
 
-                    defaultclient.save().success(function(e){}).error(function(){});
+                    chainer.add(defaultclient.save());
 
                     var admin = Users.build({
                         id: 1,
@@ -88,9 +89,10 @@ var run = function (next){
                         email: 'contact@gmail.com',
                         active: 1,
                         ClientId: 1
-                    }).save().success(function(e){}).error(function(){});
+                    });
+                    chainer.add(admin.save());
 
-                    Applications.build({
+                    var apps = Applications.build({
                         id: 1,
                         name: 'Privatepooler',
                         description: 'Admin channel',
@@ -98,10 +100,17 @@ var run = function (next){
                         secretkey: crypto.createHash('sha1').update((new Date().getTime())+config.jast.secretkey).digest('hex'),
                         active: 1,
                         ClientId: 1
-                    }).save().success(function(e){
-                    }).error(function(){});
-
-                    next();
+                    });
+                    chainer.add(apps.save());
+                    chainer.run()
+                    .success(function(){
+                        next();
+                    })
+                    .error(function(errors){
+                        env.log.error("INI JAST FIRST TIME ",errors);
+                        next();
+                    });
+                    //next();
                 }catch(e){
                     env.log.error("******************************************************************************");
                     env.log.error(e,e.stack);

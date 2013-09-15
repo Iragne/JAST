@@ -122,6 +122,7 @@ var start = function(cb){
 
 
     database.Applications.findAll({}).success(function(apps){
+        //env.log.error(apps);
         if (apps){
             for (var i in apps){
                 var model = apps[i];
