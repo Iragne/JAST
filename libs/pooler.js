@@ -66,9 +66,9 @@ var channel_emmit = function (){
         });
 };
 exports.run = function(conf){
-//    return;    
+    "use strict";
     channel_emmit();
-    var key_admin = conf.key_admin || '4dc31927dc719858c134d09b5941fe6db7ec6606';
+    var key_admin = conf.key_admin || 'pas de conf de channel ';
     var client_admin = conf.client_admin || 1;
     var app_admin = conf.app_admin || 1;
 
@@ -166,7 +166,7 @@ exports.run = function(conf){
             }
             RedisEmitter_events.on(event_ch,killreq);
         });
-        data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
+        var data = {client:client_admin, key: key_admin, app:app_admin,channel:"admin_channel"};
         socket_listen.emit('psubscribe', data,function (e){
             env.log.debug(e);
         });

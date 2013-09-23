@@ -47,7 +47,7 @@ block script
 				send();
 				//socket.disconnect();
 			} else {
-				socket = io.connect('http://'+window.location.host+'/ns',{'force new connection': true});
+				socket = io.connect(('https:' == document.location.protocol ? 'https:' : 'http:') + '//'+window.location.host+'/ns',{'force new connection': true});
 			}
 			socket.on('connect', function (data) {
 				send();
@@ -60,7 +60,7 @@ block script
 				sub();
 				//s_socket.disconnect();
 			} else {
-				s_socket = io.connect('http://'+window.location.host+'/ns',{'force new connection': true});
+				s_socket = io.connect(('https:' == document.location.protocol ? 'https:' : 'http:') + '//'+window.location.host+'/ns',{'force new connection': true});
 			}
 			s_socket.on('connect', function (data) {
 				sub();

@@ -49,7 +49,44 @@ if (config.redis.password){
 var io = null;
 var ns = null;
 
-var start = function(cb){
+
+var initRedisStart = function (cb){
+    "use strict";
+
+    var prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
+
+    DB.keys('/1/*',function(err,elts){
+        env.log.info("clean redis");
+        env.log.debug(elts);
+        if(elts){
+            for (var i = 0; i < elts.length; i++) {
+                //DB.del(elts[i]);
+                env.log.info("Clean",elts[i]);
+            }
+        }
+        database.Applications.findAll({}).success(function(apps){
+            //  env.log.error(apps);
+            if (apps){
+                for (var i in apps){
+                    var model = apps[i];
+                    DB.sadd(prefix+"Clients",model.ClientId);
+                    DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
+                    DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
+                }
+            }
+            database.Applications.find({where:{ClientId:1}}).success(function(app){
+                env.log.info("add key",prefix+"Channels",1+":"+1+":"+"admin_channel");
+                DB.sadd(prefix+"Channels",1+":"+1+":"+"admin_channel");
+
+                env.log.info("add key",prefix+"AppsKey",1+":"+1+":"+app.secretkey);
+                DB.sadd(prefix+"AppsKey",1+":"+1+":"+app.secretkey);
+                cb(app);
+            });
+        });
+    });
+};
+
+var start = function(admin_app,cb){
     "use strict";
     //app.configure(function(){
         app.set('title', 'JAST API');
@@ -108,63 +145,78 @@ var start = function(cb){
     //    io.set('close timeout', 60*60*24); // 24h time out
     });*/
     ns = io.of("/"+config.express.websocket);
-
-    var prefix = "/"+config.jast.version+"/"+config.jast.namespace+"/";
-
-    DB.keys('/1/*',function(err,elts){
-        env.log.info("clean redis");
-        env.log.debug(elts);
-        if(elts)
-            for (var i = 0; i < elts.length; i++) {
-                DB.del(elts[i]);
-            }
+    
+    jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,function(){
+        poolers.run({key_admin: admin_app.secretkey,client_admin:1,app_admin:admin_app.id});
+        //cb();
+        cb(app);
     });
-
-
-    database.Applications.findAll({}).success(function(apps){
-        //env.log.error(apps);
-        if (apps){
-            for (var i in apps){
-                var model = apps[i];
-                DB.sadd(prefix+"Clients",model.ClientId);
-                DB.sadd(prefix+"Apps",model.ClientId+":"+model.id);
-                DB.sadd(prefix+"AppsKey",model.ClientId+":"+model.id+":"+model.secretkey);
-            }
-        }
-    });
-
-    database.Applications.find({where:{ClientId:1}}).success(function(app){
-        DB.sadd(prefix+"Channels",1+":"+1+":"+"admin_channel");
-        DB.sadd(prefix+"AppsKey",1+":"+1+":"+app.secretkey);
-        jast_socket.runsio(DB,redis_emmitter,app.secretkey,ns,function(){
-            poolers.run({key_admin: app.secretkey,client_admin:1,app_admin:app.id});
-        });
-    });
-    cb(app);
+    return server;
 };
 
 
 
+var runMultiCore = function (start){
+    "use strict";
+    if (cluster.isMaster) {
+        var numCPUs = require('os').cpus().length;
+        var i = 0;
+        for (i = 0; i < numCPUs; i++) {
+            cluster.fork();
+        }
+        cluster.on('exit', function(worker, code, signal) {
+            env.log.error('Worker ' + worker.process.pid + ' died');
+        });
+        i = 0;
+        for (var id in cluster.workers) {
+            if (i === 0){
+                cluster.workers[id].send("master");
+            }
+            i++;
+        }
+    }else{
+        start();
+    }
+};
 
-
-
-
+var dev = 1;
+//var sticky = require('sticky-sesion');
 
 if (module.parent) {
     module.exports.start = function(cb){
         database.run(function(){
             "use strict";
             console.log(config.express.port);
-            start(cb);
+            initRedisStart(function(admin_app){
+                start(admin_app,cb);
+            });
         });
     };
 }else{
-    database.run(function(){
-        "use strict";
-        console.log(config.express.port);
-        start(function (){
+    if (dev === 0){
+        var cluster = require('cluster');
+        runMultiCore(function(){
+            "use strict";
+            database.run(function(){
+                console.log(config.express.port);
+                initRedisStart(function(admin_app){
+                    start(admin_app,function (){
+                    });
+                });
+            });
         });
-    });
+    }else{
+        database.run(function(){
+            "use strict";
+            console.log(config.express.port);
+            initRedisStart(function(admin_app){
+                start(admin_app,function (){
+                });
+            });
+        });
+    }
+    
+    
 }
 
 

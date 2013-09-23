@@ -225,7 +225,7 @@ module.exports.runsio = function (DB,redis_emmitter,t_admin_key,ns,next){
                         });
 
                 }else{
-                    env.log.error("FILE:jast_socket.js","No key for the client found here : " + clientAndKey + "in "+prefix+'AppsKey' +" channel send " + channel);
+                    env.log.error("FILE:jast_socket.js","No key for the client found here : " + clientAndKey + " in "+prefix+' AppsKey' +" channel send " + channel);
                     // close all
                 }
             });
