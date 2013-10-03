@@ -65,10 +65,15 @@ RedisHooker.prototype.addUse = function(config) {
     var listener = config.jast.namesapcelistener || "Feeds";
     var prefix = "/"+version+"/"+namespace+"/";
 
-	subscribe.on("pmessage", function(pattern, channel, message) {
-		RedisEmitter_events.emit(channel,message);
+	subscribe.on("pmessage", function(pattern, channel, p_message) {
+		try{
+			var message = JSON.parse(p_message);
+			RedisEmitter_events.emit(message.channel,message);
+		}catch(e){
+
+		}
 	});
 	env.log.debug("watch========>"+prefix+listener+":*");
-	subscribe.psubscribe(prefix+listener+":*");
+	subscribe.psubscribe(prefix+listener+":");
 };
 RedisHooker.prototype.use = RedisHooker.prototype.addUse;

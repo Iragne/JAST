@@ -81,13 +81,8 @@ RedisEmitterSub.prototype.subscribe = function(channel,prefix, callback) {
         if(!dd)
             redisinstance_readwrite.set(channel,1);
     });
-    var e = {channel:channel,fct:function(datae){
-        try{
-            var data = JSON.parse(datae);
-            a.callback(data.key,channelclean,datae);
-        }catch(e){
-            env.log.error(e);
-        }
+    var e = {channel:channel,fct:function(j_data){
+        a.callback(j_data.key,channelclean,j_data);
     }};
     this._eventlist.push(e);
 	this._event.on(e.channel,e.fct);
@@ -155,7 +150,13 @@ RedisEmitterPub.prototype.publish = function(channel,key,channelclean, data) {
             // console.log(err)
         });
         //console.log(d)
-        redisinstance.publish(channel, d);
+        var version = config.jast.version || "1";
+        var namespace = config.jast.namesapce || "jast";
+        var listener = config.jast.namesapcelistener || "Feeds";
+        var prefix = "/"+version+"/"+namespace+"/";
+
+        redisinstance.publish(prefix+listener+":", d);
+        //redisinstance.publish(channel, d);
     }catch(e){
         env.log.error("RedisEmitterPub.prototype.publish errr");
         env.log.error(e);
