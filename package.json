@@ -11,14 +11,15 @@
     "formidable": "1.0.8",
     "jade": "x",
     "socket.io": "x",
-    "nconf" : "0.6.x",
-    "log" : "1.2.x",
+    "nconf": "0.6.x",
+    "log": "1.2.x",
     "connect-redis": "x",
     "sequelize": "x",
     "socket.io-client": "x",
-    "jajsondiff":"git://github.com/Iragne/jajsondiff.git",
-    "mutex":"git://github.com/Iragne/node-mutex.git",
-    "mysql":"x"
+    "jajsondiff": "git://github.com/Iragne/jajsondiff.git",
+    "mutex": "git://github.com/Iragne/node-mutex.git",
+    "mysql": "x",
+    "supervisor": "~0.5.6"
   },
   "devDependencies": {
     "mocha": "*",
